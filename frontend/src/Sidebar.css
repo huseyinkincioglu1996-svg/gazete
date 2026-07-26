@@ -1,5 +1,10 @@
+:root {
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 60px;
+}
+
 .sidebar {
-  width: 240px;
+  width: var(--sidebar-width);
   min-height: 100vh;
   background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -86,7 +91,7 @@
 
 @media (max-width: 768px) {
   .sidebar {
-    width: 60px;
+    width: var(--sidebar-collapsed-width);
   }
 
   .sidebar-logo-text,

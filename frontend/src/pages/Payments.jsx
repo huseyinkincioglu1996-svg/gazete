@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import './Payments.css';
 
 function Payments() {
@@ -12,7 +12,7 @@ function Payments() {
 
   const fetchPayments = async () => {
     try {
-      const response = await axios.get('/api/payments');
+      const response = await api.get('/api/payments');
       setPayments(response.data);
     } catch (err) {
       console.error('❌ Ödemeler yüklenirken hata:', err);
@@ -22,7 +22,7 @@ function Payments() {
   const handlePayment = async (id) => {
     if (window.confirm('Ödemeyi tamamlamak istediğinize emin misiniz?')) {
       try {
-        await axios.put(`/api/payments/${id}/pay`);
+        await api.put(`/api/payments/${id}/pay`);
         fetchPayments();
       } catch (err) {
         console.error('❌ Ödeme hatası:', err);

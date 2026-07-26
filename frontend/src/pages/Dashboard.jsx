@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -18,9 +18,9 @@ function Dashboard() {
 
   const fetchStats = async () => {
     try {
-      const distributors = await axios.get('/api/distributors');
-      const deliveries = await axios.get('/api/deliveries');
-      const payments = await axios.get('/api/payments');
+      const distributors = await api.get('/api/distributors');
+      const deliveries = await api.get('/api/deliveries');
+      const payments = await api.get('/api/payments');
 
       const totalRevenue = payments.data.reduce((sum, p) => sum + p.tutar, 0);
       const paidAmount = payments.data
@@ -43,7 +43,7 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <h1>📊 Dashboard</h1>
+      <h1>📊 Raporlar</h1>
       
       <div className="stats-grid">
         <div className="stat-card">

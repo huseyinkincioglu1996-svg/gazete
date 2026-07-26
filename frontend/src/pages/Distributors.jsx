@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import './Distributors.css';
 
 function Distributors() {
@@ -20,7 +20,7 @@ function Distributors() {
 
   const fetchDistributors = async () => {
     try {
-      const response = await axios.get('/api/distributors');
+      const response = await api.get('/api/distributors');
       setDistributors(response.data);
     } catch (err) {
       console.error('❌ Dağıtıcılar yüklenirken hata:', err);
@@ -31,10 +31,10 @@ function Distributors() {
     e.preventDefault();
     try {
       if (editingId) {
-        await axios.put(`/api/distributors/${editingId}`, formData);
+        await api.put(`/api/distributors/${editingId}`, formData);
         setEditingId(null);
       } else {
-        await axios.post('/api/distributors', formData);
+        await api.post('/api/distributors', formData);
       }
       setFormData({
         isim: '',
@@ -53,7 +53,7 @@ function Distributors() {
   const handleDelete = async (id) => {
     if (window.confirm('Silmek istediğinize emin misiniz?')) {
       try {
-        await axios.delete(`/api/distributors/${id}`);
+        await api.delete(`/api/distributors/${id}`);
         fetchDistributors();
       } catch (err) {
         console.error('❌ Silme hatası:', err);

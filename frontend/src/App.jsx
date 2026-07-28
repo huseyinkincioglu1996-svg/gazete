@@ -22,6 +22,7 @@ import BackIcon from './components/BackIcon';
 import HeaderBranding from './components/HeaderBranding';
 import { BrandingProvider } from './BrandingContext';
 import './App.css';
+import './theme-red-black.css';
 
 function ScrollToTop() {
   const { pathname } = useLocation();

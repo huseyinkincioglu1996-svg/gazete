@@ -1,0 +1,1128 @@
+:root {
+  color-scheme: dark;
+  --rb-bg: #050506;
+  --rb-surface: #101012;
+  --rb-surface-2: #18181c;
+  --rb-surface-3: #222228;
+  --rb-border: #34343c;
+  --rb-border-red: #522031;
+  --rb-text: #f8fafc;
+  --rb-muted: #b4b4bd;
+  --rb-red: #a9003b;
+  --rb-red-hover: #c40046;
+  --rb-red-bright: #fb3f79;
+  --rb-red-soft: #320b18;
+  --rb-green: #4ade80;
+  --rb-green-soft: #092b1a;
+  --rb-amber: #fbbf24;
+  --rb-amber-soft: #342309;
+  --rb-error: #f87171;
+  --rb-error-soft: #360e13;
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% 0%, rgb(169 0 59 / 12%), transparent 34rem),
+    var(--rb-bg);
+  color: var(--rb-text);
+  overflow-x: hidden;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-color: var(--rb-red-bright);
+}
+
+#root .feature-shell,
+#root .main-wrapper,
+#root .main-content {
+  background: transparent;
+  color: var(--rb-text);
+}
+
+#root .main-content {
+  min-width: 0;
+  overflow-x: clip;
+}
+
+#root .feature-toolbar {
+  border-bottom-color: rgb(196 0 70 / 55%);
+  background:
+    linear-gradient(90deg, #050506 0%, #17050b 50%, #050506 100%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 42%);
+}
+
+#root .feature-menu-link {
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: var(--rb-red);
+}
+
+#root .feature-menu-link:hover {
+  background: var(--rb-red-hover);
+}
+
+#root .footer {
+  border-top: 1px solid var(--rb-border);
+  background: #08080a;
+  color: var(--rb-muted);
+}
+
+#root .skip-link {
+  background: var(--rb-red);
+  color: var(--rb-text);
+}
+
+#root .header-branding-unit {
+  border-color: var(--rb-border);
+  background: rgb(0 0 0 / 62%);
+}
+
+#root .header-branding-image {
+  border-color: rgb(255 255 255 / 18%);
+  background: var(--rb-surface-3);
+}
+
+/* Tam ekran menüler */
+#root .menu-page {
+  background:
+    radial-gradient(circle at 50% -10%, rgb(196 0 70 / 28%), transparent 34%),
+    var(--rb-bg);
+  color: var(--rb-text);
+}
+
+#root .menu-identity {
+  border-color: rgb(255 255 255 / 13%);
+  background: linear-gradient(135deg, var(--rb-red) 0%, #680024 100%);
+}
+
+#root .menu-identity-icon {
+  background: rgb(0 0 0 / 22%);
+}
+
+#root .menu-tile {
+  border-color: var(--rb-border);
+  background:
+    linear-gradient(145deg, var(--rb-surface-2) 0%, var(--rb-surface) 100%);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 48%);
+  color: var(--rb-text);
+}
+
+#root .menu-tile:hover {
+  border-color: var(--rb-red-hover);
+  background:
+    linear-gradient(145deg, #21151a 0%, var(--rb-surface) 100%);
+  box-shadow: 0 16px 36px rgb(0 0 0 / 58%);
+}
+
+#root .menu-tile small {
+  color: var(--rb-muted);
+}
+
+#root .menu-tile-featured {
+  border-color: rgb(255 255 255 / 12%);
+  background: linear-gradient(135deg, var(--rb-red) 0%, #710029 100%);
+  color: var(--rb-text);
+}
+
+#root .menu-tile-featured small {
+  color: rgb(255 255 255 / 76%);
+}
+
+#root .menu-back-link {
+  border-color: rgb(255 255 255 / 28%);
+  background: rgb(0 0 0 / 34%);
+}
+
+/* Ortak metin, yüzey ve form alanları */
+#root .main-content :is(
+  .page-heading,
+  .daily-delivery-heading,
+  .payment-page-heading,
+  .cash-page-heading,
+  .subscriber-page-heading,
+  .settings-page-heading,
+  .company-settings-heading
+) h1 {
+  color: var(--rb-text);
+}
+
+#root .main-content :is(
+  .page-heading,
+  .daily-delivery-heading,
+  .payment-page-heading,
+  .cash-page-heading,
+  .subscriber-page-heading,
+  .settings-page-heading,
+  .company-settings-heading
+) p {
+  color: var(--rb-muted);
+}
+
+#root .main-content :is(
+  .stat-card,
+  .report-panel,
+  .daily-summary-card,
+  .daily-delivery-panel,
+  .distributor-form,
+  .distributors-list,
+  .payment-summary-card,
+  .distributor-payments,
+  .cash-collections,
+  .cash-editor,
+  .subscriber-form,
+  .subscriber-list,
+  .period-form,
+  .period-list,
+  .company-settings-form,
+  .branding-setting-card,
+  .location-picker
+) {
+  border-color: var(--rb-border);
+  background: var(--rb-surface);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 28%);
+  color: var(--rb-text);
+}
+
+#root .main-content :is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  select,
+  textarea
+) {
+  border-color: var(--rb-border);
+  background: #09090b;
+  color: var(--rb-text);
+  caret-color: var(--rb-red-bright);
+}
+
+#root .main-content :is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  select,
+  textarea
+):focus {
+  border-color: var(--rb-red-hover);
+  box-shadow: 0 0 0 3px rgb(196 0 70 / 22%);
+}
+
+#root .main-content :is(input, textarea)::placeholder {
+  color: #777781;
+  opacity: 1;
+}
+
+#root .main-content :is(input, select, textarea):disabled {
+  border-color: #2b2b31;
+  background: #17171a;
+  color: #74747e;
+  opacity: 1;
+}
+
+#root .main-content :is(input[type="checkbox"], input[type="radio"]) {
+  accent-color: var(--rb-red-hover);
+}
+
+#root .main-content option {
+  background: #09090b;
+  color: var(--rb-text);
+}
+
+#root .main-content :is(label, legend) {
+  color: #dedee4;
+}
+
+#root .main-content table {
+  background: transparent;
+  color: var(--rb-text);
+}
+
+#root .main-content table th {
+  border-color: var(--rb-border);
+  background: var(--rb-surface-2);
+  color: #d3d3da;
+}
+
+#root .main-content table td {
+  border-color: var(--rb-border);
+  color: var(--rb-text);
+}
+
+#root .main-content :is(
+  .btn-secondary,
+  .subscriber-cancel-button,
+  .subscriber-refresh-button,
+  .period-cancel-button,
+  .period-refresh-button,
+  .payment-refresh-button,
+  .branding-remove-button,
+  .cash-draft-button,
+  .cash-remove-button
+) {
+  border-color: var(--rb-border);
+  background: var(--rb-surface-2);
+  color: var(--rb-text);
+}
+
+#root .main-content :is(
+  .btn-secondary,
+  .subscriber-cancel-button,
+  .subscriber-refresh-button,
+  .period-cancel-button,
+  .period-refresh-button,
+  .payment-refresh-button,
+  .branding-remove-button,
+  .cash-draft-button
+):hover:not(:disabled) {
+  border-color: var(--rb-border-red);
+  background: var(--rb-surface-3);
+}
+
+#root .main-content :is(
+  .company-settings-actions button,
+  .daily-delivery-actions button,
+  .distributor-form .btn-primary,
+  .btn-edit,
+  .subscriber-save-button,
+  .subscriber-edit-button,
+  .period-save-button,
+  .period-edit-button,
+  .location-current-button,
+  .location-link-apply-button
+) {
+  border-color: var(--rb-red);
+  background: var(--rb-red);
+  color: var(--rb-text);
+}
+
+#root .main-content :is(
+  .company-settings-actions button,
+  .daily-delivery-actions button,
+  .distributor-form .btn-primary,
+  .btn-edit,
+  .subscriber-save-button,
+  .subscriber-edit-button,
+  .period-save-button,
+  .period-edit-button,
+  .location-current-button,
+  .location-link-apply-button
+):hover:not(:disabled) {
+  border-color: var(--rb-red-hover);
+  background: var(--rb-red-hover);
+}
+
+/* Bildirim ve durum renkleri */
+#root .main-content :is(
+  .feedback-error,
+  .daily-delivery-feedback-error,
+  .distributor-feedback-error,
+  .payment-feedback-error,
+  .cash-feedback-error,
+  .subscriber-feedback-error,
+  .settings-feedback-error,
+  .company-settings-feedback.error,
+  .location-picker-feedback.error
+) {
+  border-color: #6b2028;
+  background: var(--rb-error-soft);
+  color: #fca5a5;
+}
+
+#root .main-content :is(
+  .daily-delivery-feedback-success,
+  .distributor-feedback-success,
+  .payment-feedback-success,
+  .cash-feedback-success,
+  .subscriber-feedback-success,
+  .settings-feedback-success,
+  .company-settings-feedback.success,
+  .location-picker-feedback.success
+) {
+  border-color: #166534;
+  background: var(--rb-green-soft);
+  color: #86efac;
+}
+
+#root .main-content .payment-feedback-warning {
+  border-color: #6b4f11;
+  background: var(--rb-amber-soft);
+  color: #fde68a;
+}
+
+/* Raporlar */
+#root .dashboard .report-controls input {
+  background: #09090b;
+}
+
+#root .dashboard :is(.stat-card h2, .stat-card span, .panel-heading p) {
+  color: var(--rb-muted);
+}
+
+#root .dashboard .stat-card {
+  border-left-color: var(--rb-red-hover);
+}
+
+#root .dashboard .stat-number {
+  color: var(--rb-red-bright);
+}
+
+#root .dashboard .stat-card.success {
+  border-left-color: #16a34a;
+}
+
+#root .dashboard .stat-card.success .stat-number {
+  color: var(--rb-green);
+}
+
+#root .dashboard .stat-card.warning {
+  border-left-color: #d97706;
+}
+
+#root .dashboard .stat-card.warning .stat-number {
+  color: var(--rb-amber);
+}
+
+#root .dashboard :is(.panel-heading h2, .report-panel td) {
+  color: var(--rb-text);
+}
+
+#root .dashboard .panel-heading {
+  border-color: var(--rb-border);
+}
+
+#root .dashboard .panel-count {
+  background: var(--rb-red-soft);
+  color: #ff9fbb;
+}
+
+#root .dashboard :is(.empty-state, .loading-state) {
+  color: var(--rb-muted);
+}
+
+#root .dashboard .status-success {
+  background: var(--rb-green-soft);
+  color: #86efac;
+}
+
+#root .dashboard .status-pending {
+  background: var(--rb-amber-soft);
+  color: #fde68a;
+}
+
+/* Günlük dağıtım */
+#root .daily-deliveries :is(
+  .daily-date-control label,
+  .daily-summary-card > span,
+  .daily-summary-card small,
+  .daily-delivery-panel-heading p,
+  .daily-coverage-cell span,
+  .daily-amount-input > span,
+  .daily-delivery-actions p
+) {
+  color: var(--rb-muted);
+}
+
+#root .daily-deliveries .daily-summary-card {
+  border-left-color: var(--rb-red-hover);
+}
+
+#root .daily-deliveries .daily-summary-card strong {
+  color: var(--rb-red-bright);
+}
+
+#root .daily-deliveries .daily-summary-card.delivered {
+  border-color: #14532d;
+  border-left-color: #16a34a;
+}
+
+#root .daily-deliveries .daily-summary-card.delivered strong {
+  color: var(--rb-green);
+}
+
+#root .daily-deliveries .daily-summary-card.collected {
+  border-color: var(--rb-border-red);
+  border-left-color: var(--rb-red-hover);
+}
+
+#root .daily-deliveries .daily-summary-card.collected strong {
+  color: #ff7ca3;
+}
+
+#root .daily-deliveries :is(
+  .daily-delivery-panel-heading,
+  .daily-delivery-actions
+) {
+  border-color: var(--rb-border);
+  background: var(--rb-surface);
+}
+
+#root .daily-deliveries .daily-delivery-panel-heading h2,
+#root .daily-deliveries :is(
+  .daily-subscriber-cell > strong,
+  .daily-delivery-quantity strong
+) {
+  color: var(--rb-text);
+}
+
+#root .daily-deliveries .daily-change-state.dirty {
+  background: var(--rb-amber-soft);
+  color: #fde68a;
+}
+
+#root .daily-deliveries .daily-change-state.saved {
+  background: var(--rb-green-soft);
+  color: #86efac;
+}
+
+#root .daily-deliveries .daily-delivery-complete-row,
+#root .daily-deliveries .daily-delivery-table tbody tr.daily-delivery-complete-row {
+  border-color: #14532d;
+  background: #081c12;
+}
+
+#root .daily-deliveries .daily-check-control span {
+  color: #d4d4da;
+}
+
+#root .daily-deliveries .daily-plan-badge.planned {
+  background: var(--rb-red-soft);
+  color: #ff9fbb;
+}
+
+#root .daily-deliveries :is(
+  .daily-plan-badge.unplanned,
+  .daily-distributor-badge.unassigned
+) {
+  background: var(--rb-surface-3);
+  color: var(--rb-muted);
+}
+
+#root .daily-deliveries .daily-distributor-badge {
+  background: #281019;
+  color: #ff9fbb;
+}
+
+#root .daily-deliveries :is(
+  .daily-delivery-message,
+  .daily-delivery-table tbody td::before
+) {
+  color: var(--rb-muted) !important;
+}
+
+#root .daily-deliveries .daily-delivery-message-error {
+  color: var(--rb-error) !important;
+}
+
+/* Dağıtıcılar */
+#root .distributors :is(
+  .form-header h2,
+  .list-heading h2
+) {
+  color: var(--rb-text);
+}
+
+#root .distributors :is(
+  .form-header p,
+  .list-heading p,
+  .field-description,
+  .address-text,
+  .schedule-text,
+  .table-message
+) {
+  color: var(--rb-muted) !important;
+}
+
+#root .distributors :is(.edit-badge) {
+  background: var(--rb-red-soft);
+  color: #ff9fbb;
+}
+
+#root .distributors .day-selector {
+  border-color: var(--rb-border);
+}
+
+#root .distributors .day-selector legend {
+  color: #ff9fbb;
+}
+
+#root .distributors :is(.day-option span, .month-day-option span) {
+  border-color: var(--rb-border);
+  background: var(--rb-surface-2);
+  color: #d4d4da;
+}
+
+#root .distributors :is(
+  .day-option input:checked + span,
+  .month-day-option input:checked + span
+) {
+  border-color: var(--rb-red-hover);
+  background: var(--rb-red-soft);
+  color: #ffb0c7;
+  box-shadow: inset 0 0 0 1px var(--rb-red-hover);
+}
+
+#root .distributors :is(.day-option:hover span, .month-day-option:hover span) {
+  border-color: var(--rb-red-bright);
+}
+
+#root .distributors .list-heading {
+  border-color: var(--rb-border);
+}
+
+/* Ödeme takibi */
+#root .payments :is(
+  .payment-control label,
+  .payment-summary-card h2,
+  .payment-summary-card span,
+  .payment-section-heading p
+) {
+  color: var(--rb-muted);
+}
+
+#root .payments .payment-summary-card {
+  border-left-color: var(--rb-red-hover);
+}
+
+#root .payments .payment-summary-card p {
+  color: var(--rb-red-bright);
+}
+
+#root .payments .payment-summary-card.cash {
+  border-color: #14532d;
+  border-left-color: #059669;
+}
+
+#root .payments .payment-summary-card.cash p,
+#root .payments .payment-summary-card.paid p {
+  color: var(--rb-green);
+}
+
+#root .payments .payment-summary-card.paid {
+  border-color: #14532d;
+  border-left-color: #16a34a;
+}
+
+#root .payments .payment-summary-card.pending {
+  border-color: #6b4f11;
+  border-left-color: #d97706;
+}
+
+#root .payments .payment-summary-card.pending p {
+  color: var(--rb-amber);
+}
+
+#root .payments .payment-accounting-note {
+  background: var(--rb-surface-2);
+  color: var(--rb-muted);
+}
+
+#root .payments .payment-section-heading {
+  border-color: var(--rb-border);
+  background: var(--rb-surface);
+}
+
+#root .payments .cash-collections {
+  border-color: #14532d;
+}
+
+#root .payments .cash-collections .payment-section-heading {
+  border-color: #14532d;
+  background: var(--rb-green-soft);
+}
+
+#root .payments .payment-section-heading h2 {
+  color: var(--rb-text);
+}
+
+#root .payments .cash-collections .payment-section-heading h2 {
+  color: #86efac;
+}
+
+#root .payments .payment-section-heading > span {
+  background: var(--rb-green-soft);
+  color: #86efac;
+}
+
+#root .payments .payment-filters {
+  border-color: var(--rb-border);
+  background: var(--rb-surface-2);
+}
+
+#root .payments .payment-filters button {
+  border-color: var(--rb-border);
+  background: #0a0a0c;
+  color: #d4d4da;
+}
+
+#root .payments .payment-filters button span {
+  background: var(--rb-surface-3);
+}
+
+#root .payments .payment-filters button.active {
+  border-color: var(--rb-red-hover);
+  background: var(--rb-red);
+  color: var(--rb-text);
+}
+
+#root .payments .payment-paid-row,
+#root .payments .distributor-payment-table tbody tr.payment-paid-row {
+  background: #081c12;
+}
+
+#root .payments .payment-amount {
+  color: #ff7ca3 !important;
+}
+
+#root .payments :is(.cash-collection-status, .payment-status.paid) {
+  background: var(--rb-green-soft);
+  color: #86efac;
+}
+
+#root .payments .payment-status.pending {
+  background: var(--rb-amber-soft);
+  color: #fde68a;
+}
+
+#root .payments :is(
+  .payment-table-message,
+  .cash-collection-table tbody td::before,
+  .distributor-payment-table tbody td::before
+) {
+  color: var(--rb-muted) !important;
+}
+
+#root .payments .payment-table-error {
+  color: var(--rb-error) !important;
+}
+
+/* Kasa teslimi */
+#root .cash-handover .monthly-cash-card {
+  border: 1px solid rgb(255 255 255 / 13%);
+  background:
+    radial-gradient(circle at 90% 10%, rgb(255 255 255 / 15%), transparent 34%),
+    linear-gradient(135deg, var(--rb-red) 0%, #620022 100%);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 40%);
+}
+
+#root .cash-handover :is(
+  .cash-page-heading p,
+  .cash-editor-heading p,
+  .cash-amount-input span
+) {
+  color: var(--rb-muted);
+}
+
+#root .cash-handover :is(
+  .monthly-cash-copy .monthly-cash-eyebrow,
+  .monthly-cash-copy .monthly-cash-range,
+  .monthly-cash-value > span
+) {
+  color: #ffc2d5;
+}
+
+#root .cash-handover :is(.cash-title-line h2, .cash-table td) {
+  color: var(--rb-text);
+}
+
+#root .cash-handover .cash-editor-heading {
+  border-color: var(--rb-border);
+}
+
+#root .cash-handover .cash-status-draft {
+  background: var(--rb-amber-soft);
+  color: #fde68a;
+}
+
+#root .cash-handover .cash-status-delivered {
+  background: var(--rb-green-soft);
+  color: #86efac;
+}
+
+#root .cash-handover .cash-empty-notice {
+  border-color: var(--rb-border-red);
+  background: var(--rb-red-soft);
+  color: #ffb0c7;
+}
+
+#root .cash-handover :is(
+  .cash-locked-notice,
+  .cash-automatic-summary
+) {
+  border-color: #14532d;
+  background: var(--rb-green-soft);
+  color: #86efac;
+}
+
+#root .cash-handover .cash-automatic-summary span,
+#root .cash-handover :is(.cash-automatic-subscriber span, .cash-automatic-amount) {
+  color: var(--rb-green);
+}
+
+#root .cash-handover .cash-automatic-row,
+#root .cash-handover .cash-table tbody tr.cash-automatic-row {
+  border-color: #14532d;
+  background: #081c12;
+}
+
+#root .cash-handover .cash-automatic-badge {
+  border-color: #166534;
+  background: var(--rb-green-soft);
+  color: #86efac;
+}
+
+#root .cash-handover .cash-remove-button {
+  border-color: #6b2028;
+  background: var(--rb-error-soft);
+  color: #fca5a5;
+}
+
+#root .cash-handover .cash-remove-button:hover:not(:disabled) {
+  background: #4b121a;
+}
+
+#root .cash-handover :is(.cash-table-message, .cash-table tbody td::before) {
+  color: var(--rb-muted) !important;
+}
+
+#root .cash-handover .cash-table-error {
+  color: var(--rb-error) !important;
+}
+
+#root .cash-handover .cash-table tfoot td {
+  border-color: var(--rb-border-red);
+  background: var(--rb-red-soft);
+  color: #ffb0c7;
+}
+
+#root .cash-handover .cash-table tfoot output {
+  color: #ff7ca3;
+}
+
+#root .cash-handover .cash-add-button {
+  border-color: var(--rb-red);
+  background: var(--rb-red-soft);
+  color: #ff9fbb;
+}
+
+#root .cash-handover .cash-add-button:hover:not(:disabled) {
+  border-color: var(--rb-red-hover);
+  background: #481020;
+}
+
+/* Abone ve ödeme periyodu yönetimi */
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-form-header h2,
+  .subscriber-list-header h2,
+  .period-form-heading h2,
+  .period-list-heading h2
+) {
+  color: var(--rb-text);
+}
+
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-form-header p,
+  .subscriber-list-header p,
+  .period-form-heading p,
+  .period-list-heading p,
+  .subscriber-field-message,
+  .subscriber-secondary-text,
+  .subscriber-muted,
+  .period-muted
+) {
+  color: var(--rb-muted);
+}
+
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-edit-badge,
+  .period-edit-badge
+) {
+  background: var(--rb-red-soft);
+  color: #ff9fbb;
+}
+
+#root .subscribers :is(.subscriber-day-selector, .subscriber-active-control),
+#root .settings-page .period-active-control {
+  border-color: var(--rb-border);
+  background: var(--rb-surface-2);
+  color: var(--rb-text);
+}
+
+#root .subscribers .subscriber-day-selector legend {
+  color: #ff9fbb;
+}
+
+#root .subscribers :is(
+  .subscriber-day-selector > p,
+  .subscriber-day-selector > small,
+  .subscriber-active-control small
+),
+#root .settings-page .period-active-control small {
+  color: var(--rb-muted);
+}
+
+#root .subscribers .subscriber-day-option span {
+  border-color: var(--rb-border);
+  background: var(--rb-surface-2);
+  color: #d4d4da;
+}
+
+#root .subscribers .subscriber-day-option input:checked + span {
+  border-color: var(--rb-red-hover);
+  background: var(--rb-red-soft);
+  color: #ffb0c7;
+  box-shadow: inset 0 0 0 1px var(--rb-red-hover);
+}
+
+#root .subscribers .subscriber-day-option-special span {
+  border-color: #713047;
+  background: #261018;
+}
+
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-filters,
+  .period-filters
+) {
+  border-color: var(--rb-border);
+  background: var(--rb-surface-2);
+}
+
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-filters button,
+  .period-filters button
+) {
+  border-color: var(--rb-border);
+  background: #0a0a0c;
+  color: #d4d4da;
+}
+
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-filters button span,
+  .period-filters button span
+) {
+  background: var(--rb-surface-3);
+}
+
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-filters button.active,
+  .period-filters button.active
+) {
+  border-color: var(--rb-red-hover);
+  background: var(--rb-red);
+  color: var(--rb-text);
+}
+
+#root .subscribers .subscriber-passive-row,
+#root .subscribers .subscriber-table tbody tr.subscriber-passive-row,
+#root .settings-page .period-passive-row,
+#root .settings-page .period-table tbody tr.period-passive-row {
+  background: #18181b;
+  opacity: 0.78;
+}
+
+#root .subscribers :is(.subscriber-table a, .subscriber-map-link) {
+  color: #ff7ca3;
+}
+
+#root .subscribers :is(
+  .subscriber-payment-period,
+  .subscriber-day-badges span
+) {
+  background: var(--rb-red-soft);
+  color: #ff9fbb;
+}
+
+#root .subscribers .subscriber-distributor {
+  background: #281019;
+  color: #ffb0c7;
+}
+
+#root .subscribers .subscriber-fee,
+#root .settings-page .period-day-count {
+  color: #ff7ca3 !important;
+}
+
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-status.active,
+  .period-status.active,
+  .subscriber-toggle-button.activate,
+  .period-toggle-button.activate
+) {
+  border-color: #166534;
+  background: var(--rb-green-soft);
+  color: #86efac;
+}
+
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-status.passive,
+  .period-status.passive
+) {
+  background: var(--rb-surface-3);
+  color: var(--rb-muted);
+}
+
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-toggle-button.deactivate,
+  .period-toggle-button.deactivate
+) {
+  border-color: #6b4f11;
+  background: var(--rb-amber-soft);
+  color: #fde68a;
+}
+
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-table-message,
+  .period-table-message,
+  .subscriber-table tbody td::before,
+  .period-table tbody td::before
+) {
+  color: var(--rb-muted) !important;
+}
+
+#root :is(.subscribers, .settings-page) :is(
+  .subscriber-table-error,
+  .period-table-error
+) {
+  color: var(--rb-error) !important;
+}
+
+/* Konum seçici */
+#root .location-picker {
+  border-color: var(--rb-border-red);
+  background: var(--rb-surface-2);
+}
+
+#root .location-picker .location-picker-heading h3 {
+  color: #ff9fbb;
+}
+
+#root .location-picker .location-picker-heading p {
+  color: var(--rb-muted);
+}
+
+#root .location-picker .location-picker-selected {
+  background: var(--rb-green-soft);
+  color: #86efac;
+}
+
+#root .location-picker .location-map-shell {
+  border-color: var(--rb-border);
+  background: #070708;
+}
+
+#root .location-picker .location-map-overlay {
+  background: rgb(5 5 6 / 90%);
+  color: var(--rb-muted);
+}
+
+#root .location-picker .location-picker-info {
+  border-color: #6b4f11;
+  background: var(--rb-amber-soft);
+  color: #fde68a;
+}
+
+#root .location-picker .location-picker-actions a {
+  color: #ff7ca3;
+}
+
+#root .location-picker .location-picker-actions button {
+  color: #fca5a5;
+}
+
+/* Firma görünüm ayarları */
+#root .company-settings-page :is(
+  .branding-setting-card-heading h2,
+  .branding-field label
+) {
+  color: var(--rb-text);
+}
+
+#root .company-settings-page :is(
+  .branding-setting-card-heading p,
+  .branding-help,
+  .company-settings-actions p
+) {
+  color: var(--rb-muted);
+}
+
+#root .company-settings-page .branding-setting-card {
+  background: var(--rb-surface-2);
+}
+
+#root .company-settings-page .branding-setting-badge,
+#root .company-settings-page .branding-setting-badge.distributor {
+  background: var(--rb-red-soft);
+  color: #ff9fbb;
+}
+
+#root .company-settings-page .branding-preview {
+  border-color: #52525b;
+  background: #09090b;
+  color: var(--rb-muted);
+}
+
+#root .company-settings-page .branding-file-button {
+  border-color: var(--rb-red);
+  background: var(--rb-red);
+}
+
+#root .company-settings-page .branding-file-button:hover {
+  border-color: var(--rb-red-hover);
+  background: var(--rb-red-hover);
+}
+
+#root .company-settings-page .company-settings-actions {
+  border-color: var(--rb-border);
+  background: var(--rb-surface-2);
+}
+
+/* Masaüstü tablolar ve telefon kartları aynı koyu yüzeyi kullanır. */
+#root .main-content :is(
+  .daily-delivery-table,
+  .cash-table,
+  .cash-collection-table,
+  .distributor-payment-table,
+  .subscriber-table,
+  .period-table,
+  .report-panel table,
+  .distributors-list table
+) tbody tr {
+  background: transparent;
+}
+
+@media (max-width: 768px) {
+  #root .main-content :is(
+    .daily-delivery-table,
+    .cash-table,
+    .cash-collection-table,
+    .distributor-payment-table,
+    .subscriber-table,
+    .period-table
+  ) tbody tr {
+    border-color: var(--rb-border);
+    background: var(--rb-surface-2);
+    box-shadow: 0 5px 16px rgb(0 0 0 / 26%);
+  }
+
+  #root .main-content .daily-delivery-table tbody .daily-check-cell {
+    background: #131316;
+  }
+
+  #root .main-content :is(
+    .daily-delivery-table,
+    .cash-table,
+    .cash-collection-table,
+    .distributor-payment-table,
+    .subscriber-table,
+    .period-table
+  ) tbody td {
+    border-color: var(--rb-border);
+  }
+
+  #root .main-content :is(
+    .subscriber-actions,
+    .period-row-actions,
+    .payment-row-action,
+    .cash-row-action
+  ) {
+    border-color: var(--rb-border);
+  }
+}

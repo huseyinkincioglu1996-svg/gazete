@@ -1,57 +1,73 @@
 const Distributor = require('../models/Distributor');
 const Delivery = require('../models/Delivery');
-const Payment = require('../models/Payment');
+const { startOfDay } = require('../utils/date');
+const { createPaymentIfAbsent } = require('../services/automaticPayments');
+const { nextPaymentPeriod } = require('../services/paymentPeriods');
 
-// Her gün 23:59'de çalışır - Günlük ödeme oluştur
-async function dailyPaymentCron() {
-  try {
-    console.log('🔄 Günlük ödeme kontrolü çalışıyor...');
+async function createPaymentsForDistributors(distributors, odemeTuru, today, aciklamaPrefix) {
+  const summary = { created: 0, existing: 0, skipped: 0, failed: 0 };
 
-    const today = new Date();
-    const gunBaslangic = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const gunBitis = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  for (const distributor of distributors) {
+    try {
+      const period = await nextPaymentPeriod({
+        distributorId: distributor._id,
+        odemeTuru,
+        periodEnd: today
+      });
 
-    // Günlük ödeme yapan dağıtıcıları bul
-    const distributors = await Distributor.find({
-      aktif: true,
-      odeme_tipi: 'Günlük'
-    });
+      if (!period) {
+        summary.existing += 1;
+        continue;
+      }
 
-    for (const distributor of distributors) {
-      // O günkü tamamlanan dağıtımları bul
       const deliveries = await Delivery.find({
         distributor_id: distributor._id,
-        tarih: { $gte: gunBaslangic, $lt: gunBitis },
+        tarih: { $gte: period.start, $lte: period.end },
         durum: 'Tamamlandı'
       });
 
-      if (deliveries.length > 0) {
-        const totalGazete = deliveries.reduce((sum, d) => sum + d.gazeteSayisi, 0);
-        const tutar = totalGazete * distributor.gazete_fiyat;
-
-        const aciklama = `${totalGazete} gazete × ${distributor.gazete_fiyat}₺ = ${tutar}₺`;
-
-        // Ödeme kaydı oluştur
-        const payment = new Payment({
-          distributor_id: distributor._id,
-          tutar,
-          tarih: today,
-          donem_baslangic: gunBaslangic,
-          donem_bitis: gunBitis,
-          aciklama,
-          odeme_turu: 'Günlük',
-          durum: 'Beklemede'
-        });
-
-        await payment.save();
-        console.log(`✅ ${distributor.isim} için günlük ödeme oluşturuldu: ${tutar}₺`);
+      if (deliveries.length === 0) {
+        summary.skipped += 1;
+        continue;
       }
-    }
 
-    console.log('✅ Günlük ödeme kontrolü tamamlandı');
-  } catch (err) {
-    console.error('❌ Günlük ödeme hatası:', err);
+      const result = await createPaymentIfAbsent({
+        distributor,
+        odemeTuru,
+        donemBaslangic: period.start,
+        donemBitis: period.end,
+        tarih: today,
+        deliveries,
+        aciklamaPrefix
+      });
+
+      if (result.created) {
+        summary.created += 1;
+        console.log(`${odemeTuru} ödeme oluşturuldu: ${distributor.isim} (${result.tutar}₺)`);
+      } else {
+        summary.existing += 1;
+      }
+    } catch (error) {
+      summary.failed += 1;
+      console.error(`${odemeTuru} ödeme oluşturulamadı (${distributor.isim}):`, error.message);
+    }
+  }
+
+  return summary;
+}
+
+// Her gün 23:59'da çalışır; dönem başlangıcı ve bitişi bugündür.
+async function dailyPaymentCron(now = new Date()) {
+  const today = startOfDay(now);
+
+  try {
+    const distributors = await Distributor.find({ aktif: true, odeme_tipi: 'Günlük' });
+    return await createPaymentsForDistributors(distributors, 'Günlük', today, 'Günlük');
+  } catch (error) {
+    console.error('Günlük ödeme kontrolü başarısız:', error.message);
+    return { created: 0, existing: 0, skipped: 0, failed: 1 };
   }
 }
 
 module.exports = dailyPaymentCron;
+module.exports.createPaymentsForDistributors = createPaymentsForDistributors;

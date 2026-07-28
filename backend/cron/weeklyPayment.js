@@ -1,65 +1,23 @@
 const Distributor = require('../models/Distributor');
-const Delivery = require('../models/Delivery');
-const Payment = require('../models/Payment');
+const { startOfDay, getTurkishBusinessDay } = require('../utils/date');
+const { createPaymentsForDistributors } = require('./dailyPayment');
 
-// Her gün 23:59'de çalışır - Haftalık ödeme oluştur
-async function weeklyPaymentCron() {
+// Her gün 23:59'da kontrol edilir. 0=Pazartesi ... 6=Pazar eşlemesi kullanılır.
+async function weeklyPaymentCron(now = new Date()) {
+  const today = startOfDay(now);
+  const businessDay = getTurkishBusinessDay(today);
+
   try {
-    console.log('🔄 Haftalık ödeme kontrolü çalışıyor...');
-
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-
-    // Haftalık ödeme yapan dağıtıcıları bul
     const distributors = await Distributor.find({
       aktif: true,
       odeme_tipi: 'Haftalık',
-      odeme_gunleri_hafta: dayOfWeek
+      odeme_gunleri_hafta: businessDay
     });
 
-    for (const distributor of distributors) {
-      // Bu haftanın başlangıcını bul (Pazartesi)
-      const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - today.getDay());
-      startOfWeek.setHours(0, 0, 0, 0);
-
-      // Hafta sonunu bul
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 7);
-
-      // Bu haftanın tamamlanan dağıtımlarını bul
-      const deliveries = await Delivery.find({
-        distributor_id: distributor._id,
-        tarih: { $gte: startOfWeek, $lt: endOfWeek },
-        durum: 'Tamamlandı'
-      });
-
-      if (deliveries.length > 0) {
-        const totalGazete = deliveries.reduce((sum, d) => sum + d.gazeteSayisi, 0);
-        const tutar = totalGazete * distributor.gazete_fiyat;
-
-        const aciklama = `Haftalık: ${totalGazete} gazete × ${distributor.gazete_fiyat}₺ = ${tutar}₺`;
-
-        // Ödeme kaydı oluştur
-        const payment = new Payment({
-          distributor_id: distributor._id,
-          tutar,
-          tarih: today,
-          donem_baslangic: startOfWeek,
-          donem_bitis: endOfWeek,
-          aciklama,
-          odeme_turu: 'Haftalık',
-          durum: 'Beklemede'
-        });
-
-        await payment.save();
-        console.log(`✅ ${distributor.isim} için haftalık ödeme oluşturuldu: ${tutar}₺`);
-      }
-    }
-
-    console.log('✅ Haftalık ödeme kontrolü tamamlandı');
-  } catch (err) {
-    console.error('❌ Haftalık ödeme hatası:', err);
+    return await createPaymentsForDistributors(distributors, 'Haftalık', today, 'Haftalık');
+  } catch (error) {
+    console.error('Haftalık ödeme kontrolü başarısız:', error.message);
+    return { created: 0, existing: 0, skipped: 0, failed: 1 };
   }
 }
 

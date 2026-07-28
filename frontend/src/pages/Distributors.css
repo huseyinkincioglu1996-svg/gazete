@@ -1,136 +1,390 @@
 .distributors {
-  padding: 20px;
+  max-width: 1360px;
+  margin: 0 auto;
 }
 
-.distributors h1 {
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.form {
-  background: white;
-  padding: 20px;
+.distributor-feedback {
+  margin-bottom: 18px;
+  border: 1px solid;
   border-radius: 8px;
-  margin-bottom: 30px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 12px 14px;
 }
 
-.form-group {
+.distributor-feedback-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.distributor-feedback-success {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.distributor-form,
+.distributors-list {
+  margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 5%);
+}
+
+.distributor-form {
+  padding: 20px;
+}
+
+.form-header,
+.list-heading {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.form-header h2,
+.list-heading h2 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.1rem;
+}
+
+.form-header p,
+.list-heading p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.edit-badge {
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.distributor-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.distributor-form .form-group {
+  display: flex;
+  min-width: 0;
   flex-direction: column;
+  gap: 6px;
 }
 
-.form-group label {
-  margin-bottom: 5px;
-  color: #666;
-  font-weight: 500;
+.distributor-form .form-group label {
+  color: #475569;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
-.form-group input,
-.form-group select {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+.distributor-form .form-group input,
+.distributor-form .form-group select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 9px 10px;
+  color: #1e293b;
+  font: inherit;
 }
 
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+.distributor-form .form-group input:focus,
+.distributor-form .form-group select:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
-.btn-primary,
-.btn-secondary {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
+.distributor-form .form-group-wide {
+  grid-column: span 2;
+}
+
+.day-selector {
+  margin: 20px 0 0;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.day-selector legend {
+  padding: 0 4px;
+  color: #1e3a8a;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.field-description {
+  margin: 0 0 12px;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.day-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.day-option,
+.month-day-option {
+  position: relative;
+  display: block;
   cursor: pointer;
-  font-weight: 500;
-  align-self: flex-end;
 }
 
-.btn-primary {
-  background: #007bff;
-  color: white;
+.day-option input,
+.month-day-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0;
+  opacity: 0;
+  white-space: nowrap;
 }
 
-.btn-primary:hover {
-  background: #0056b3;
+.day-option span,
+.month-day-option span {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #fff;
+  color: #475569;
+  font-size: 0.84rem;
+  font-weight: 700;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-.btn-secondary {
-  background: #6c757d;
-  color: white;
-  margin-left: 10px;
+.day-option input:checked + span,
+.month-day-option input:checked + span {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
+  box-shadow: inset 0 0 0 1px #2563eb;
 }
 
-.btn-secondary:hover {
-  background: #545b62;
+.day-option input:focus-visible + span,
+.month-day-option input:focus-visible + span {
+  outline: 3px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+.day-option:hover span,
+.month-day-option:hover span {
+  border-color: #93c5fd;
+}
+
+.month-day-options {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.month-day-option span {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 8px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.distributor-form .btn-primary,
+.distributor-form .btn-secondary,
+.distributors-list .btn-secondary,
+.btn-edit,
+.btn-delete {
+  border-radius: 6px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.distributor-form .btn-primary {
+  border: 0;
+  background: #2563eb;
+  color: #fff;
+}
+
+.distributor-form .btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.distributor-form .btn-secondary,
+.distributors-list .btn-secondary {
+  border: 1px solid #64748b;
+  background: #fff;
+  color: #334155;
+}
+
+.distributor-form .btn-secondary:hover:not(:disabled),
+.distributors-list .btn-secondary:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+.distributor-form button:disabled,
+.distributors-list button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
 .distributors-list {
-  background: white;
-  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.distributors-list .list-heading {
+  padding: 18px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.distributor-table-wrapper {
+  overflow-x: auto;
 }
 
 .distributors-list table {
   width: 100%;
+  min-width: 1060px;
   border-collapse: collapse;
 }
 
-.distributors-list table thead {
-  background: #f8f9fa;
-}
-
-.distributors-list table th {
-  padding: 15px;
+.distributors-list th,
+.distributors-list td {
+  padding: 13px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
   text-align: left;
-  font-weight: 600;
-  color: #333;
-  border-bottom: 2px solid #dee2e6;
+  vertical-align: middle;
 }
 
-.distributors-list table td {
-  padding: 15px;
-  border-bottom: 1px solid #dee2e6;
+.distributors-list th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.75rem;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
 }
 
-.distributors-list table tbody tr:hover {
-  background: #f8f9fa;
+.distributors-list tr:last-child td {
+  border-bottom: 0;
+}
+
+.table-message {
+  padding: 28px !important;
+  color: #64748b !important;
+  text-align: center !important;
+}
+
+.address-text,
+.schedule-text {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.action-cell {
+  display: flex;
+  gap: 7px;
+  white-space: nowrap;
 }
 
 .btn-edit,
 .btn-delete {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  margin-right: 5px;
+  border: 0;
+  padding: 7px 10px;
+  color: #fff;
+  font-size: 0.8rem;
 }
 
 .btn-edit {
-  background: #28a745;
-  color: white;
+  background: #2563eb;
 }
 
 .btn-edit:hover {
-  background: #218838;
+  background: #1d4ed8;
 }
 
 .btn-delete {
-  background: #dc3545;
-  color: white;
+  background: #dc2626;
 }
 
-.btn-delete:hover {
-  background: #c82333;
+.btn-delete:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+@media (max-width: 900px) {
+  .distributor-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .month-day-options {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .distributor-form {
+    padding: 16px;
+  }
+
+  .form-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .distributor-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .distributor-form .form-group-wide {
+    grid-column: auto;
+  }
+
+  .day-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .day-option span {
+    width: 100%;
+    min-height: 44px;
+    padding: 7px 8px;
+    text-align: center;
+  }
+
+  .month-day-options {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .distributors-list .list-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

@@ -1,104 +1,57 @@
 const express = require('express');
 const router = express.Router();
 const Distributor = require('../models/Distributor');
+const { asyncHandler, HttpError } = require('../utils/http');
+const { objectId } = require('../utils/validation');
+const { buildDistributorPayload } = require('../utils/payloads');
 
-// GET - Tüm dağıtıcıları listele
-router.get('/', async (req, res) => {
-  try {
-    console.log('📋 Dağıtıcılar getiriliyor...');
-    const distributors = await Distributor.find();
-    console.log('✅ Dağıtıcılar getirildi:', distributors.length);
-    res.json(distributors);
-  } catch (err) {
-    console.error('❌ GET /api/distributors hatası:', err);
-    res.status(500).json({ hata: err.message });
+// By default inactive distributors are hidden after a safe delete. Historical
+// records remain reachable through reports and `?includeInactive=true`.
+router.get('/', asyncHandler(async (req, res) => {
+  const filter = req.query.includeInactive === 'true' ? {} : { aktif: true };
+  const distributors = await Distributor.find(filter).sort({ isim: 1 });
+  res.json(distributors);
+}));
+
+router.get('/:id', asyncHandler(async (req, res) => {
+  const distributor = await Distributor.findById(objectId(req.params.id));
+  if (!distributor) {
+    throw new HttpError(404, 'Dağıtıcı bulunamadı');
   }
-});
+  res.json(distributor);
+}));
 
-// GET - Bir dağıtıcıyı getir
-router.get('/:id', async (req, res) => {
-  try {
-    const distributor = await Distributor.findById(req.params.id);
-    if (!distributor) {
-      return res.status(404).json({ hata: 'Dağıtıcı bulunamadı' });
-    }
-    res.json(distributor);
-  } catch (err) {
-    console.error('❌ GET /api/distributors/:id hatası:', err);
-    res.status(500).json({ hata: err.message });
+router.post('/', asyncHandler(async (req, res) => {
+  const distributor = new Distributor(buildDistributorPayload(req.body));
+  await distributor.save();
+  res.status(201).json(distributor);
+}));
+
+router.put('/:id', asyncHandler(async (req, res) => {
+  const distributor = await Distributor.findById(objectId(req.params.id));
+  if (!distributor) {
+    throw new HttpError(404, 'Dağıtıcı bulunamadı');
   }
-});
 
-// POST - Yeni dağıtıcı ekle
-router.post('/', async (req, res) => {
-  try {
-    console.log('📝 Yeni dağıtıcı ekleniyor. Body:', req.body);
-    
-    const { isim, adres, telefon, bolge, gazete_fiyat, odeme_tipi } = req.body;
+  Object.assign(distributor, buildDistributorPayload(req.body, { partial: true }));
+  await distributor.save();
+  res.json(distributor);
+}));
 
-    // Validasyon
-    if (!isim || !adres || !telefon || !bolge) {
-      return res.status(400).json({ hata: 'İsim, adres, telefon ve bölge zorunludur!' });
-    }
+// Financial and delivery history must survive a delete request. The distributor
+// is therefore deactivated instead of physically removing referenced records.
+router.delete('/:id', asyncHandler(async (req, res) => {
+  const distributor = await Distributor.findById(objectId(req.params.id));
+  if (!distributor) {
+    throw new HttpError(404, 'Dağıtıcı bulunamadı');
+  }
 
-    const distributor = new Distributor({
-      isim,
-      adres,
-      telefon,
-      bolge,
-      gazete_fiyat: gazete_fiyat || 5,
-      odeme_tipi: odeme_tipi || 'Günlük'
-    });
-
+  if (distributor.aktif) {
+    distributor.aktif = false;
     await distributor.save();
-    console.log('✅ Dağıtıcı eklendi:', distributor._id);
-    res.status(201).json(distributor);
-  } catch (err) {
-    console.error('❌ POST /api/distributors hatası:', err);
-    res.status(400).json({ hata: err.message });
   }
-});
 
-// PUT - Dağıtıcıyı güncelle
-router.put('/:id', async (req, res) => {
-  try {
-    console.log('✏️ Dağıtıcı güncelleniyor. ID:', req.params.id, 'Body:', req.body);
-    
-    const distributor = await Distributor.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    
-    if (!distributor) {
-      return res.status(404).json({ hata: 'Dağıtıcı bulunamadı' });
-    }
-    
-    console.log('✅ Dağıtıcı güncellendi:', distributor._id);
-    res.json(distributor);
-  } catch (err) {
-    console.error('❌ PUT /api/distributors/:id hatası:', err);
-    res.status(400).json({ hata: err.message });
-  }
-});
-
-// DELETE - Dağıtıcıyı sil
-router.delete('/:id', async (req, res) => {
-  try {
-    console.log('🗑️ Dağıtıcı siliniyor. ID:', req.params.id);
-    
-    const distributor = await Distributor.findByIdAndDelete(req.params.id);
-    
-    if (!distributor) {
-      return res.status(404).json({ hata: 'Dağıtıcı bulunamadı' });
-    }
-    
-    console.log('✅ Dağıtıcı silindi:', req.params.id);
-    res.json({ mesaj: 'Dağıtıcı silindi' });
-  } catch (err) {
-    console.error('❌ DELETE /api/distributors/:id hatası:', err);
-    res.status(500).json({ hata: err.message });
-  }
-});
+  res.json({ mesaj: 'Dağıtıcı pasife alındı; teslimat ve ödeme geçmişi korundu' });
+}));
 
 module.exports = router;

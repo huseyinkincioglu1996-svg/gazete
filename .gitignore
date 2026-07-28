@@ -1,6 +1,12 @@
 node_modules/
+# Yerel ortam değişkenleri: örnek dosyalar (örn. .env.example) izlenebilir.
 .env
+backend/.env
+frontend/.env
+.env.local
+.env.*.local
 .DS_Store
 *.log
 dist/
 build/
+backend/.local-mongodb/

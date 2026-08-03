@@ -362,6 +362,109 @@ public sealed class DeliveryAutosaveEndpointTests
     private static readonly DateOnly TestDate = new(2026, 7, 28);
 
     [Fact]
+    public async Task DeliveriesPage_ShowsListedSubscriberCountInsideDeliveredSummary()
+    {
+        await using var factory = new GazeteWebFactory();
+        using var client = CreateClient(factory);
+        await SeedPaymentScheduleSubscribersAsync(factory);
+
+        using var response = await client.GetAsync(
+            $"/deliveries?date={TestDate:yyyy-MM-dd}");
+
+        response.EnsureSuccessStatusCode();
+        var html = await response.Content.ReadAsStringAsync();
+        var summary = Regex.Match(
+            html,
+            """
+            <a\b[^>]*data-testid="delivered-summary"[^>]*>
+            (?<content>.*?)
+            </a>
+            """,
+            RegexOptions.IgnoreCase |
+            RegexOptions.Singleline |
+            RegexOptions.IgnorePatternWhitespace |
+            RegexOptions.CultureInvariant);
+        Assert.True(summary.Success, "Teslim edilen özet alanı bulunamadı.");
+        var content = summary.Groups["content"].Value;
+        Assert.Contains(
+            "data-testid=\"listed-subscriber-total\"",
+            content,
+            StringComparison.Ordinal);
+        var inlineTotal = Regex.Match(
+            content,
+            """
+            <div\b[^>]*class="summary-total-with-listed"[^>]*>
+            (?<content>.*?)
+            </div>
+            """,
+            RegexOptions.IgnoreCase |
+            RegexOptions.Singleline |
+            RegexOptions.IgnorePatternWhitespace |
+            RegexOptions.CultureInvariant);
+        Assert.True(
+            inlineTotal.Success,
+            "Teslim edilen ve listelenen abone sayıları aynı satırda bulunamadı.");
+        var inlineContent = inlineTotal.Groups["content"].Value;
+        Assert.Contains(
+            "id=\"delivered-total\">0</strong>",
+            inlineContent,
+            StringComparison.Ordinal);
+        Assert.Matches(
+            @"<small\b[^>]*data-testid=""listed-subscriber-total""[^>]*>\s*\(2\)\s*</small>",
+            inlineContent);
+        Assert.Contains(
+            "aria-label=\"Listelenen abone sayısı: 2\"",
+            content,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "Listelenen abone:",
+            content,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task DeliveriesPage_WithoutCompanySettings_ShowsDistributorAndCoverageByDefault()
+    {
+        await using var factory = new GazeteWebFactory();
+        using var client = CreateClient(factory);
+        var (subscriberId, _) =
+            await SeedPaymentScheduleSubscribersAsync(factory);
+
+        using var response = await client.GetAsync(
+            $"/deliveries?date={TestDate:yyyy-MM-dd}");
+
+        response.EnsureSuccessStatusCode();
+        var html = await response.Content.ReadAsStringAsync();
+        AssertDistributorAndCoverageVisibility(
+            html,
+            subscriberId,
+            expectedVisible: true);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task DeliveriesPage_UsesCompanyDistributorAndCoverageVisibilitySetting(
+        bool expectedVisible)
+    {
+        await using var factory = new GazeteWebFactory();
+        using var client = CreateClient(factory);
+        var (subscriberId, _) =
+            await SeedPaymentScheduleSubscribersAsync(factory);
+        await SeedCompanySettingsAsync(factory, expectedVisible);
+
+        using var response = await client.GetAsync(
+            $"/deliveries?date={TestDate:yyyy-MM-dd}");
+
+        response.EnsureSuccessStatusCode();
+        var html = await response.Content.ReadAsStringAsync();
+        AssertDistributorAndCoverageVisibility(
+            html,
+            subscriberId,
+            expectedVisible);
+    }
+
+    [Fact]
     public async Task DeliveriesPage_RendersPaymentFieldsOnlyForDueSubscriber()
     {
         await using var factory = new GazeteWebFactory();
@@ -761,6 +864,20 @@ public sealed class DeliveryAutosaveEndpointTests
         return (dueSubscriber.Id, nonDueSubscriber.Id);
     }
 
+    private static async Task SeedCompanySettingsAsync(
+        GazeteWebFactory factory,
+        bool showDistributorAndCoverage)
+    {
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        dbContext.CompanySettings.Add(new CompanySettings
+        {
+            NewspaperUnitPrice = 10m,
+            ShowDistributorAndCoverage = showDistributorAndCoverage
+        });
+        await dbContext.SaveChangesAsync();
+    }
+
     private static string ExtractDeliveryRow(string html, int subscriberId)
     {
         var row = Regex.Match(
@@ -780,6 +897,42 @@ public sealed class DeliveryAutosaveEndpointTests
             row.Success,
             $"Subscriber {subscriberId} delivery row was not found.");
         return row.Value;
+    }
+
+    private static void AssertDistributorAndCoverageVisibility(
+        string html,
+        int subscriberId,
+        bool expectedVisible)
+    {
+        var row = ExtractDeliveryRow(html, subscriberId);
+        var hasDistributorHeader = Regex.IsMatch(
+            html,
+            @"<th\b[^>]*>\s*Dağıtıcı\s*</th>",
+            RegexOptions.IgnoreCase |
+            RegexOptions.CultureInvariant);
+        var hasCoverageHeader = Regex.IsMatch(
+            html,
+            @"<th\b[^>]*>\s*Kapsam\s*</th>",
+            RegexOptions.IgnoreCase |
+            RegexOptions.CultureInvariant);
+        var hasDistributorCell = Regex.IsMatch(
+            row,
+            @"\bclass=""[^""]*\bdistributor-cell\b[^""]*""",
+            RegexOptions.IgnoreCase |
+            RegexOptions.CultureInvariant);
+        var hasCoverageCell = Regex.IsMatch(
+            row,
+            @"\bclass=""[^""]*\bcoverage-cell\b[^""]*""",
+            RegexOptions.IgnoreCase |
+            RegexOptions.CultureInvariant);
+
+        Assert.Equal(expectedVisible, hasDistributorHeader);
+        Assert.Equal(expectedVisible, hasCoverageHeader);
+        Assert.Equal(expectedVisible, hasDistributorCell);
+        Assert.Equal(expectedVisible, hasCoverageCell);
+        AssertTableCellHasClass(row, "delivery-action-cell");
+        AssertTableCellHasClass(row, "collection-action-cell");
+        AssertTableCellHasClass(row, "subscriber-cell");
     }
 
     private static void AssertMarkOnlyToggle(

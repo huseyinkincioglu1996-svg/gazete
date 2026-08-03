@@ -33,7 +33,7 @@
                 <span>Nakit Satış</span>
             </button>
             <form method="get" class="date-control" data-dirty-date-form>
-                <label for="date">Dağıtım tarihi</label>
+                <label for="date" class="sr-only">Dağıtım tarihi</label>
                 <input id="date" name="date" type="date" value="@Model.Date.ToString("yyyy-MM-dd")" />
                 <button class="button button-secondary" type="submit">Tarihe git</button>
             </form>
@@ -72,13 +72,21 @@
         </div>
     }
 
-    <section class="summary-grid summary-grid-three" aria-label="Günlük dağıtım özeti">
+    <section class="summary-grid summary-grid-two" aria-label="Günlük dağıtım özeti">
         <a class="summary-card summary-card-link success-card"
            asp-action="Delivered"
            asp-route-date="@Model.Date.ToString("yyyy-MM-dd")"
+           data-testid="delivered-summary"
            aria-label="@Model.Date.ToString("d MMMM yyyy", tr) teslim edilen aboneleri aç">
             <span>Teslim edilen</span>
-            <strong id="delivered-total">@Model.DeliveredCount</strong>
+            <div class="summary-total-with-listed">
+                <strong id="delivered-total">@Model.DeliveredCount</strong>
+                <small class="summary-listed-inline"
+                       data-testid="listed-subscriber-total"
+                       aria-label="Listelenen abone sayısı: @Model.Rows.Count">
+                    (@Model.Rows.Count)
+                </small>
+            </div>
             <small>abone</small>
             <small class="summary-card-open">Abone listesini aç →</small>
         </a>
@@ -93,11 +101,6 @@
             </small>
             <small class="summary-card-open">Ödeme listesini aç →</small>
         </a>
-        <article class="summary-card">
-            <span>Listelenen abone</span>
-            <strong>@Model.Rows.Count</strong>
-            <small>@Model.Date.ToString("d MMMM yyyy", tr)</small>
-        </article>
     </section>
 
     <form id="daily-deliveries-form"
@@ -129,15 +132,19 @@
             else
             {
                 <div class="responsive-table">
-                    <table class="data-table deliveries-table">
+                    <table class="data-table deliveries-table"
+                           data-show-distributor-coverage="@Model.ShowDistributorAndCoverage.ToString().ToLowerInvariant()">
                         <thead>
                             <tr>
                                 <th>Teslim</th>
                                 <th>Ödeme</th>
                                 <th>Tutar</th>
                                 <th>Yöntem</th>
-                                <th>Dağıtıcı</th>
-                                <th>Kapsam</th>
+                                @if (Model.ShowDistributorAndCoverage)
+                                {
+                                    <th data-optional-delivery-column>Dağıtıcı</th>
+                                    <th data-optional-delivery-column>Kapsam</th>
+                                }
                                 <th>Abone</th>
                             </tr>
                         </thead>
@@ -223,19 +230,26 @@
                                         </select>
                                     }
                                 </td>
-                                <td data-label="Dağıtıcı" class="distributor-cell">
-                                    <span class="tag">@row.DistributorName</span>
-                                </td>
-                                <td data-label="Kapsam" class="coverage-cell">
-                                    <span class="status-tag @(row.IsScheduled ? "scheduled" : "unscheduled")">
-                                        @(!row.HasDelivery
-                                            ? "Ödeme günü"
-                                            : row.IsScheduled
-                                                ? "Planlı"
-                                                : "Plan dışı")
-                                    </span>
-                                    <small>@row.CoverageLabel</small>
-                                </td>
+                                @if (Model.ShowDistributorAndCoverage)
+                                {
+                                    <td data-label="Dağıtıcı"
+                                        class="distributor-cell"
+                                        data-optional-delivery-column>
+                                        <span class="tag">@row.DistributorName</span>
+                                    </td>
+                                    <td data-label="Kapsam"
+                                        class="coverage-cell"
+                                        data-optional-delivery-column>
+                                        <span class="status-tag @(row.IsScheduled ? "scheduled" : "unscheduled")">
+                                            @(!row.HasDelivery
+                                                ? "Ödeme günü"
+                                                : row.IsScheduled
+                                                    ? "Planlı"
+                                                    : "Plan dışı")
+                                        </span>
+                                        <small>@row.CoverageLabel</small>
+                                    </td>
+                                }
                                 <td data-label="Abone" class="subscriber-cell">
                                     <strong>@row.SubscriberName</strong>
                                     <span class="row-save-status"

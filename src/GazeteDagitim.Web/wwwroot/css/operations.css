@@ -174,6 +174,10 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.summary-grid-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .summary-grid-four {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -252,41 +256,40 @@
   z-index: 1;
 }
 
-.subscriber-monthly-primary {
-  display: grid;
+.subscriber-monthly-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.subscriber-monthly-primary > span,
-.subscriber-monthly-due span {
+.subscriber-monthly-heading > span,
+.subscriber-monthly-detail span {
   font-weight: 800;
 }
 
-.subscriber-monthly-primary > strong {
-  color: var(--ops-green) !important;
-  font-size: clamp(2rem, 5vw, 3.5rem);
-}
-
-.subscriber-monthly-due {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 20px;
+.subscriber-monthly-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
   padding-top: 14px;
   border-top: 1px solid rgb(255 255 255 / 14%);
 }
 
-.subscriber-monthly-due > div {
+.subscriber-monthly-detail {
   display: grid;
+  min-width: 0;
+  align-content: start;
+  padding: 12px 14px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 13px;
+  background: rgb(0 0 0 / 18%);
 }
 
-.subscriber-monthly-due strong {
+.subscriber-monthly-detail strong {
   margin-bottom: 0;
   color: #ff77a1 !important;
-  font-size: clamp(1.55rem, 3vw, 2.4rem);
-}
-
-.subscriber-monthly-due b {
-  color: #fff;
+  font-size: clamp(1.25rem, 2.7vw, 2rem);
 }
 
 .subscriber-collection-progress {
@@ -345,6 +348,25 @@
   margin-top: 7px;
   color: #ff91b5;
   font-weight: 850;
+}
+
+.summary-total-with-listed {
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
+}
+
+.summary-total-with-listed > strong {
+  margin-inline: 0;
+}
+
+.summary-listed-inline {
+  color: #fff !important;
+  font-size: clamp(.95rem, 1.8vw, 1.2rem);
+  font-weight: 850;
+  white-space: nowrap;
 }
 
 .summary-date {
@@ -1219,6 +1241,100 @@
   grid-column: 1 / -1;
 }
 
+.delivery-display-settings-card {
+  grid-column: 1 / -1;
+}
+
+.settings-toggle-card {
+  position: relative;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-height: 88px;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #4a4a53;
+  border-radius: 14px;
+  background: #0b0b0e;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.settings-toggle-card:hover {
+  border-color: #8d2850;
+  background: #130a0e;
+}
+
+.settings-toggle-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.settings-toggle-switch {
+  position: relative;
+  display: block;
+  width: 56px;
+  height: 32px;
+  border: 1px solid #5b5b65;
+  border-radius: 999px;
+  background: #24242a;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.settings-toggle-switch::after {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #b9b9c2;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 42%);
+  content: "";
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.settings-toggle-input:checked + .settings-toggle-switch {
+  border-color: #c1275d;
+  background: var(--ops-red);
+}
+
+.settings-toggle-input:checked + .settings-toggle-switch::after {
+  background: #fff;
+  transform: translateX(24px);
+}
+
+.settings-toggle-input:focus-visible + .settings-toggle-switch {
+  outline: 3px solid rgb(255 73 132 / 42%);
+  outline-offset: 3px;
+}
+
+.settings-toggle-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.settings-toggle-copy strong {
+  color: #fff;
+  font-size: .95rem;
+}
+
+.settings-toggle-copy small {
+  color: var(--ops-muted);
+  line-height: 1.45;
+}
+
 .company-price-body {
   display: grid;
   grid-template-columns: auto minmax(220px, 1fr) minmax(220px, .8fr);
@@ -1468,6 +1584,7 @@
 
 @media (max-width: 520px) {
   .summary-grid,
+  .summary-grid-two,
   .summary-grid-three,
   .summary-grid-four {
     grid-template-columns: 1fr;
@@ -1485,10 +1602,20 @@
     min-height: 0;
   }
 
-  .subscriber-monthly-due {
-    display: grid;
-    align-items: start;
+  .subscriber-monthly-metrics {
     gap: 6px;
+  }
+
+  .subscriber-monthly-detail {
+    padding: 9px 8px;
+  }
+
+  .subscriber-monthly-detail span {
+    font-size: .72rem;
+  }
+
+  .subscriber-monthly-detail strong {
+    font-size: clamp(.94rem, 4.3vw, 1.25rem);
   }
 
   .subscriber-collection-rate {
@@ -1700,5 +1827,83 @@
 
   .deliveries-table .paper-count {
     font-size: .64rem;
+  }
+}
+
+@media (min-width: 390px) and (max-width: 520px) {
+  .deliveries-page .delivery-heading-actions {
+    display: grid;
+    grid-template-columns: minmax(132px, 1fr) minmax(0, 1.45fr);
+    align-items: stretch;
+    gap: 7px;
+  }
+
+  .deliveries-page .cash-sale-trigger {
+    width: 100%;
+    min-width: 0;
+    min-height: 100%;
+    padding-inline: 8px;
+    font-size: .78rem;
+  }
+
+  .deliveries-page .date-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-width: 0;
+    align-items: end;
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .deliveries-page .date-control label {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .deliveries-page .date-control input {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 6px;
+    font-size: .72rem;
+  }
+
+  .deliveries-page .date-control .button {
+    padding-inline: 7px;
+    font-size: .68rem;
+    white-space: nowrap;
+  }
+
+  .summary-grid-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .summary-grid-two .summary-card {
+    min-width: 0;
+    padding: 14px 10px;
+    border-radius: 14px;
+  }
+
+  .summary-grid-two .summary-card > span {
+    font-size: .78rem;
+  }
+
+  .summary-grid-two .summary-card > strong,
+  .summary-grid-two .summary-total-with-listed > strong {
+    overflow-wrap: anywhere;
+    font-size: clamp(1.15rem, 5.2vw, 1.4rem);
+  }
+
+  .summary-grid-two .summary-card small {
+    font-size: .72rem;
+    line-height: 1.35;
+  }
+
+  .summary-grid-two .summary-card-open {
+    font-size: .72rem;
+  }
+
+  .summary-grid-two .summary-listed-inline {
+    font-size: .9rem;
   }
 }

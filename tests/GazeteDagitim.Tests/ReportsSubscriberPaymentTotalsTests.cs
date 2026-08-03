@@ -115,11 +115,20 @@ public sealed class ReportsSubscriberPaymentTotalsTests
         var collectedText = ExtractDataTestText(
             html,
             "subscriber-monthly-collected");
+        var remainingText = ExtractDataTestText(
+            html,
+            "subscriber-monthly-remaining");
         Assert.True(
             collectedPosition >= 0 && collectedPosition < duePosition,
             "Toplanan tutar, toplanması gereken tutarın üstünde görünmelidir.");
         Assert.Contains("794,50", dueText, StringComparison.Ordinal);
         Assert.Contains("123,45", collectedText, StringComparison.Ordinal);
+        Assert.Contains("671,05", remainingText, StringComparison.Ordinal);
+        Assert.Contains("Genel toplam", html, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "Bu ay toplanması gereken",
+            html,
+            StringComparison.Ordinal);
     }
 
     private static ReportsController CreateController(AppDbContext context) =>

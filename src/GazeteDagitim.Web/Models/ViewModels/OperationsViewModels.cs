@@ -11,6 +11,7 @@ public sealed class DailyDeliveriesPageViewModel
     public List<NewspaperCashSaleDistributorViewModel> CashSaleDistributors { get; set; } = [];
     public List<NewspaperCashSaleViewModel> CashSales { get; set; } = [];
     public Guid CashSaleRequestId { get; set; } = Guid.NewGuid();
+    public bool ShowDistributorAndCoverage { get; set; } = true;
 
     public int DeliveredCount => Rows.Count(row => row.Delivered);
     public int CollectedCount => Rows.Count(row => row.Collected);
@@ -319,6 +320,7 @@ public sealed class CompanySettingsPageViewModel
 {
     public int? FeaturedDistributorId { get; set; }
     public decimal? NewspaperUnitPrice { get; set; }
+    public bool ShowDistributorAndCoverage { get; set; } = true;
     public string? CompanyLogoDataUrl { get; set; }
     public string? DistributorProfileImageDataUrl { get; set; }
     public List<LookupOptionViewModel> Distributors { get; set; } = [];
@@ -327,6 +329,7 @@ public sealed class CompanySettingsPageViewModel
 public sealed class CompanySettingsInputModel
 {
     public int? FeaturedDistributorId { get; set; }
+    public bool ShowDistributorAndCoverage { get; set; } = true;
 
     [Required(ErrorMessage = "Gazete birim satış fiyatı zorunludur.")]
     [Range(

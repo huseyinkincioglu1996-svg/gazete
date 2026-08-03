@@ -1,3 +1,4 @@
+using GazeteDagitim.Web.Data;
 using GazeteDagitim.Web.Models.Enums;
 using GazeteDagitim.Web.Models.ViewModels;
 using GazeteDagitim.Web.Services;
@@ -11,7 +12,8 @@ public sealed class DeliveriesController(
     ISubscriberDeliveryService deliveryService,
     ICashHandoverService cashHandoverService,
     INewspaperCashSaleService cashSaleService,
-    IBusinessClock clock) : Controller
+    IBusinessClock clock,
+    AppDbContext dbContext) : Controller
 {
     [HttpGet("")]
     public async Task<IActionResult> Index(
@@ -296,10 +298,16 @@ public sealed class DeliveriesController(
         var isCashLocked = await cashHandoverService.IsClosedAsync(
             selectedDate,
             cancellationToken);
+        var showDistributorAndCoverage = await dbContext.CompanySettings
+            .AsNoTracking()
+            .Where(value => value.SingletonKey == "company")
+            .Select(value => (bool?)value.ShowDistributorAndCoverage)
+            .SingleOrDefaultAsync(cancellationToken) ?? true;
         return new DailyDeliveriesPageViewModel
         {
             Date = selectedDate,
             IsCashLocked = isCashLocked,
+            ShowDistributorAndCoverage = showDistributorAndCoverage,
             CashSaleDistributors = cashSales.Distributors.Select(value =>
                 new NewspaperCashSaleDistributorViewModel
                 {

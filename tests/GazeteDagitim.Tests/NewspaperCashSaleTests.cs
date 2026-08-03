@@ -531,6 +531,41 @@ public sealed class NewspaperCashSaleEndpointTests
             StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CompanySettingsPage_RendersPersistedDistributorAndCoverageVisibility(
+        bool expectedChecked)
+    {
+        await using var factory = new GazeteWebFactory();
+        using var client = CreateClient(factory);
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            dbContext.CompanySettings.Add(new CompanySettings
+            {
+                NewspaperUnitPrice = 13.40m,
+                ShowDistributorAndCoverage = expectedChecked
+            });
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var response = await client.GetAsync("/menu/company/settings");
+
+        response.EnsureSuccessStatusCode();
+        var html = await response.Content.ReadAsStringAsync();
+        var checkbox = ExtractCheckbox(
+            html,
+            "ShowDistributorAndCoverage");
+        Assert.Equal(
+            expectedChecked,
+            Regex.IsMatch(
+                checkbox,
+                @"\schecked(?:\s*=\s*""checked"")?",
+                RegexOptions.IgnoreCase |
+                RegexOptions.CultureInvariant));
+    }
+
     [Fact]
     public async Task CompanySettingsPost_ParsesInvariantPriceAndPersistsRoundedValue()
     {
@@ -551,6 +586,34 @@ public sealed class NewspaperCashSaleEndpointTests
             .AsNoTracking()
             .SingleAsync();
         Assert.Equal(12.35m, settings.NewspaperUnitPrice);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CompanySettingsPost_PersistsDistributorAndCoverageVisibility(
+        bool expectedValue)
+    {
+        await using var factory = new GazeteWebFactory();
+        using var client = CreateClient(factory);
+        const string pagePath = "/menu/company/settings";
+        var antiforgeryToken = await GetAntiforgeryTokenAsync(client, pagePath);
+
+        using var response = await client.PostAsync(
+            "/menu/company/settings/save",
+            CompanySettingsForm(
+                antiforgeryToken,
+                "12.50",
+                expectedValue));
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal(pagePath, response.Headers.Location?.OriginalString);
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var settings = await dbContext.CompanySettings
+            .AsNoTracking()
+            .SingleAsync();
+        Assert.Equal(expectedValue, settings.ShowDistributorAndCoverage);
     }
 
     [Fact]
@@ -617,6 +680,25 @@ public sealed class NewspaperCashSaleEndpointTests
         await using var scope = factory.Services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         Assert.Empty(await dbContext.CompanySettings.AsNoTracking().ToListAsync());
+    }
+
+    private static string ExtractCheckbox(string html, string fieldName)
+    {
+        var checkbox = Regex.Match(
+            html,
+            $"""
+             <input\b
+             (?=[^>]*\btype="checkbox")
+             (?=[^>]*\bname="{Regex.Escape(fieldName)}")
+             [^>]*>
+             """,
+            RegexOptions.IgnoreCase |
+            RegexOptions.IgnorePatternWhitespace |
+            RegexOptions.CultureInvariant);
+        Assert.True(
+            checkbox.Success,
+            $"Checkbox field {fieldName} was not found.");
+        return checkbox.Value;
     }
 
     private static HttpClient CreateClient(GazeteWebFactory factory) =>
@@ -688,10 +770,14 @@ public sealed class NewspaperCashSaleEndpointTests
 
     private static FormUrlEncodedContent CompanySettingsForm(
         string antiforgeryToken,
-        string newspaperUnitPrice) =>
+        string newspaperUnitPrice,
+        bool showDistributorAndCoverage = true) =>
         new(
         [
             new("__RequestVerificationToken", antiforgeryToken),
-            new("NewspaperUnitPrice", newspaperUnitPrice)
+            new("NewspaperUnitPrice", newspaperUnitPrice),
+            new(
+                "ShowDistributorAndCoverage",
+                showDistributorAndCoverage.ToString().ToLowerInvariant())
         ]);
 }

@@ -132,10 +132,35 @@
                     </div>
                 </div>
             </article>
+
+            <article class="panel branding-card delivery-display-settings-card">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Dağıtım satırı görünümü</h2>
+                        <p>Günlük Dağıtımlar tablosunda gösterilecek yardımcı bilgileri belirleyin.</p>
+                    </div>
+                    <span class="status-tag @(Model.ShowDistributorAndCoverage ? "success" : "pending")">
+                        @(Model.ShowDistributorAndCoverage ? "Açık" : "Kapalı")
+                    </span>
+                </div>
+
+                <label class="settings-toggle-card">
+                    <input asp-for="ShowDistributorAndCoverage"
+                           class="settings-toggle-input" />
+                    <span class="settings-toggle-switch" aria-hidden="true"></span>
+                    <span class="settings-toggle-copy">
+                        <strong>Dağıtıcı ve kapsam bilgilerini göster</strong>
+                        <small>
+                            Açıkken satırlarda dağıtıcı ve kapsam görünür;
+                            kapalıyken bu iki bilgi tamamen gizlenir.
+                        </small>
+                    </span>
+                </label>
+            </article>
         </section>
 
         <div class="sticky-actions">
-            <span>Satış fiyatı kaydedildiğinde Nakit Satış işlemlerinde otomatik kullanılır.</span>
+            <span>Firma ve dağıtım görünümü ayarları birlikte kaydedilir.</span>
             <button class="button button-primary" type="submit">Firma ayarlarını kaydet</button>
         </div>
     </form>

@@ -471,6 +471,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             .IsRequired();
         settings.Property(value => value.LogoDataUrl).HasColumnType("nvarchar(max)");
         settings.Property(value => value.NewspaperUnitPrice).HasPrecision(18, 2);
+        settings.Property(value => value.ShowDistributorAndCoverage)
+            .HasDefaultValue(true)
+            .HasSentinel(true);
         settings.HasIndex(value => value.SingletonKey)
             .IsUnique()
             .HasDatabaseName("UX_CompanySettings_SingletonKey");

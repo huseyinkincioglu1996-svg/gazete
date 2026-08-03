@@ -32,30 +32,32 @@
     <section class="subscriber-monthly-summary"
              aria-labelledby="subscriber-monthly-summary-title">
         <article class="summary-card money-card subscriber-monthly-card">
-            <div class="subscriber-monthly-primary">
-                <span id="subscriber-monthly-summary-title">
-                    Şu anda toplanan
-                </span>
-                <strong data-testid="subscriber-monthly-collected">
-                    @Model.SubscriberCollectedTotal.ToString("C2", tr)
-                </strong>
+            <div class="subscriber-monthly-heading">
+                <span id="subscriber-monthly-summary-title">Aylık tahsilat özeti</span>
                 <small>
-                    @Model.Date.ToString("MMMM yyyy", tr) ayında tahsil edilen
-                    abone ödemeleri
+                    @Model.Date.ToString("MMMM yyyy", tr)
                 </small>
             </div>
 
-            <div class="subscriber-monthly-due">
-                <div>
-                    <span>Bu ay toplanması gereken</span>
+            <div class="subscriber-monthly-metrics">
+                <div class="subscriber-monthly-detail">
+                    <span>Şu anda toplanan</span>
+                    <strong data-testid="subscriber-monthly-collected">
+                        @Model.SubscriberCollectedTotal.ToString("C2", tr)
+                    </strong>
+                </div>
+                <div class="subscriber-monthly-detail">
+                    <span>Genel toplam</span>
                     <strong data-testid="subscriber-monthly-due">
                         @Model.SubscriberDueTotal.ToString("C2", tr)
                     </strong>
                 </div>
-                <small>
-                    Kalan:
-                    <b>@Model.SubscriberRemainingTotal.ToString("C2", tr)</b>
-                </small>
+                <div class="subscriber-monthly-detail">
+                    <span>Kalan</span>
+                    <strong data-testid="subscriber-monthly-remaining">
+                        @Model.SubscriberRemainingTotal.ToString("C2", tr)
+                    </strong>
+                </div>
             </div>
 
             <div class="subscriber-collection-progress"

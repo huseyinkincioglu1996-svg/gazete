@@ -21,7 +21,7 @@ public sealed class CompanySettingsController(AppDbContext dbContext) : Controll
 
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken cancellationToken) =>
-        View(await BuildPageAsync(null, null, false, cancellationToken));
+        View(await BuildPageAsync(null, null, true, false, cancellationToken));
 
     [HttpPost("save")]
     [ValidateAntiForgeryToken]
@@ -90,6 +90,7 @@ public sealed class CompanySettingsController(AppDbContext dbContext) : Controll
                 await BuildPageAsync(
                     input.FeaturedDistributorId,
                     input.NewspaperUnitPrice,
+                    input.ShowDistributorAndCoverage,
                     true,
                     cancellationToken));
         }
@@ -114,6 +115,8 @@ public sealed class CompanySettingsController(AppDbContext dbContext) : Controll
         settings.NewspaperUnitPrice = input.NewspaperUnitPrice.HasValue
             ? DomainRules.RoundCurrency(input.NewspaperUnitPrice.Value)
             : null;
+        settings.ShowDistributorAndCoverage =
+            input.ShowDistributorAndCoverage;
         if (input.RemoveCompanyLogo)
         {
             settings.LogoDataUrl = null;
@@ -133,13 +136,14 @@ public sealed class CompanySettingsController(AppDbContext dbContext) : Controll
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
-        TempData["Notice"] = "Firma ayarları ve gazete birim satış fiyatı kaydedildi.";
+        TempData["Notice"] = "Firma ve dağıtım görünümü ayarları kaydedildi.";
         return RedirectToAction(nameof(Index));
     }
 
     private async Task<CompanySettingsPageViewModel> BuildPageAsync(
         int? requestedFeaturedDistributorId,
         decimal? requestedNewspaperUnitPrice,
+        bool requestedShowDistributorAndCoverage,
         bool useRequestedValues,
         CancellationToken cancellationToken)
     {
@@ -159,6 +163,9 @@ public sealed class CompanySettingsController(AppDbContext dbContext) : Controll
         var newspaperUnitPrice = useRequestedValues
             ? requestedNewspaperUnitPrice
             : settings?.NewspaperUnitPrice;
+        var showDistributorAndCoverage = useRequestedValues
+            ? requestedShowDistributorAndCoverage
+            : settings?.ShowDistributorAndCoverage ?? true;
         var featuredDistributor = distributors
             .SingleOrDefault(value => value.Id == featuredDistributorId);
 
@@ -166,6 +173,7 @@ public sealed class CompanySettingsController(AppDbContext dbContext) : Controll
         {
             FeaturedDistributorId = featuredDistributorId,
             NewspaperUnitPrice = newspaperUnitPrice,
+            ShowDistributorAndCoverage = showDistributorAndCoverage,
             CompanyLogoDataUrl = settings?.LogoDataUrl,
             DistributorProfileImageDataUrl = featuredDistributor?.ProfileImageDataUrl,
             Distributors = distributors.Select(value => new LookupOptionViewModel

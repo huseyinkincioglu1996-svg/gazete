@@ -11,6 +11,8 @@ public sealed class CompanySettings : EntityBase
 
     public decimal? NewspaperUnitPrice { get; set; }
 
+    public bool ShowDistributorAndCoverage { get; set; } = true;
+
     public int? FeaturedDistributorId { get; set; }
 
     public Distributor? FeaturedDistributor { get; set; }

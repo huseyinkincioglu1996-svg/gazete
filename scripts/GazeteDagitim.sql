@@ -734,5 +734,63 @@ BEGIN
     VALUES (N'20260731093540_AddCompanyNewspaperUnitPrice', N'9.0.18');
 END;
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260802205731_AddDailyPaymentPeriod'
+)
+BEGIN
+    ALTER TABLE [Subscribers] ADD [PaymentPeriodStartedOn] date NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260802205731_AddDailyPaymentPeriod'
+)
+BEGIN
+    ALTER TABLE [PaymentPeriods] ADD [Frequency] int NOT NULL DEFAULT 0;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260802205731_AddDailyPaymentPeriod'
+)
+BEGIN
+    EXEC(N'ALTER TABLE [PaymentPeriods] ADD CONSTRAINT [CK_PaymentPeriods_DailyDayCount] CHECK ([Frequency] <> 1 OR [DayCount] = 1)');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260802205731_AddDailyPaymentPeriod'
+)
+BEGIN
+    EXEC(N'ALTER TABLE [PaymentPeriods] ADD CONSTRAINT [CK_PaymentPeriods_Frequency] CHECK ([Frequency] IN (0, 1))');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260802205731_AddDailyPaymentPeriod'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260802205731_AddDailyPaymentPeriod', N'9.0.18');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260803115523_AddDeliveryColumnVisibilitySetting'
+)
+BEGIN
+    ALTER TABLE [CompanySettings] ADD [ShowDistributorAndCoverage] bit NOT NULL DEFAULT CAST(1 AS bit);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260803115523_AddDeliveryColumnVisibilitySetting'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260803115523_AddDeliveryColumnVisibilitySetting', N'9.0.18');
+END;
+
 COMMIT;
 GO

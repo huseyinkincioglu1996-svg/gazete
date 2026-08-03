@@ -1,0 +1,421 @@
+@model GazeteDagitim.Web.Models.ViewModels.Subscribers.SubscriberPaymentDetailsPageViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = $"{Model.SubscriberName} Ödeme Detayları";
+    ViewData["ParentMenu"] = "/subscribers";
+    var tr = CultureInfo.GetCultureInfo("tr-TR");
+    string FormatDate(DateOnly? date) =>
+        date?.ToString("d MMMM yyyy", tr) ?? "Belirlenmedi";
+}
+
+<link rel="stylesheet" href="~/css/management.css" asp-append-version="true" />
+
+<main id="main-content" class="management-page subscriber-payment-page">
+    <header class="management-heading subscriber-payment-heading">
+        <div>
+            <span class="management-eyebrow">ABONE · ÖDEME DETAYLARI</span>
+            <h1>@Model.SubscriberName</h1>
+            <p>
+                Ödeme planı, ertelenen tarihler, tahsilatlar ve güncel bakiye hareketleri.
+            </p>
+            <div class="subscriber-payment-meta">
+                <span class="management-status @(Model.IsActive ? "active" : "passive")">
+                    @(Model.IsActive ? "Aktif abone" : "Pasif abone")
+                </span>
+                @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                {
+                    <span>@Model.Phone</span>
+                }
+                <span>@Model.DistributorName</span>
+            </div>
+        </div>
+        <a class="management-button management-button-secondary"
+           asp-controller="Subscribers"
+           asp-action="Edit"
+           asp-route-id="@Model.SubscriberId">
+            Abone bilgilerini düzenle
+        </a>
+    </header>
+
+    @if (TempData["Notice"] is string notice)
+    {
+        <div class="management-feedback success" role="status">@notice</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="management-feedback error" role="alert">@error</div>
+    }
+    <div asp-validation-summary="ModelOnly"
+         class="management-validation-summary"
+         role="alert"></div>
+
+    <section class="subscriber-payment-summary" aria-label="Ödeme özeti">
+        <article class="subscriber-payment-summary-card due">
+            <span>Ödeme günü</span>
+            <strong>@FormatDate(Model.NextEffectiveDueDate)</strong>
+            <small>
+                @if (Model.ScheduledTime.HasValue)
+                {
+                    <text>Saat @Model.ScheduledTime.Value.ToString("HH:mm")</text>
+                }
+                else
+                {
+                    <text>Ödeme saati belirlenmemiş</text>
+                }
+            </small>
+            @if (Model.HasActiveDeferral)
+            {
+                <em>
+                    @FormatDate(Model.NextOriginalDueDate) tarihinden ertelendi
+                </em>
+            }
+        </article>
+
+        <article class="subscriber-payment-summary-card @(Model.HasOutstandingBalance ? "danger" : "success")">
+            <span>Alınması gereken</span>
+            <strong>@Model.OutstandingBalance.ToString("C2", tr)</strong>
+            <small>
+                @(Model.HasOutstandingBalance
+                    ? "Tahsil edilmesi gereken açık bakiye"
+                    : "Bekleyen ödeme bulunmuyor")
+            </small>
+        </article>
+
+        <article class="subscriber-payment-summary-card">
+            <span>Toplam tahsil edilen</span>
+            <strong>@Model.CollectedTotal.ToString("C2", tr)</strong>
+            <small>@Model.Collections.Count ödeme hareketi</small>
+        </article>
+
+        <article class="subscriber-payment-summary-card @(Model.OverdueBalance > 0 ? "danger" : "success")">
+            <span>Gecikmiş ödeme</span>
+            <strong>@Model.OverdueBalance.ToString("C2", tr)</strong>
+            <small>
+                @(Model.OverdueBalance > 0
+                    ? "Ödeme günü geçmiş açık bakiye"
+                    : "Gecikmiş ödeme bulunmuyor")
+            </small>
+        </article>
+
+        @if (Model.AdvanceBalance > 0)
+        {
+            <article class="subscriber-payment-summary-card success">
+                <span>Fazla / avans ödeme</span>
+                <strong>@Model.AdvanceBalance.ToString("C2", tr)</strong>
+                <small>Vadesi gelmemiş ödemelere aktarılabilir</small>
+            </article>
+        }
+    </section>
+
+    <div class="subscriber-payment-layout">
+        <section class="subscriber-payment-panel" aria-labelledby="payment-plan-title">
+            <div class="subscriber-payment-panel-heading">
+                <div>
+                    <span class="management-eyebrow">PLAN</span>
+                    <h2 id="payment-plan-title">Ödeme planı</h2>
+                </div>
+                <span class="management-status @(Model.HasPaymentPlan ? "active" : "passive")">
+                    @(Model.HasPaymentPlan ? "Tanımlı" : "Eksik")
+                </span>
+            </div>
+
+            @if (!Model.HasPaymentPlan)
+            {
+                <div class="subscriber-payment-empty">
+                    <strong>Ödeme planı tanımlanmamış.</strong>
+                    <span>Ödeme günü ve bekleyen bakiye hesaplamak için aboneye bir ödeme periyodu seçin.</span>
+                    <a class="management-button management-button-primary"
+                       asp-controller="Subscribers"
+                       asp-action="Edit"
+                       asp-route-id="@Model.SubscriberId">
+                        Ödeme planı seç
+                    </a>
+                </div>
+            }
+            else
+            {
+                <dl class="subscriber-payment-definition">
+                    <div>
+                        <dt>Periyot</dt>
+                        <dd>@Model.PaymentPlanName</dd>
+                    </div>
+                    <div>
+                        <dt>Tahsilat zamanı</dt>
+                        <dd>@Model.PaymentScheduleLabel</dd>
+                    </div>
+                    <div>
+                        <dt>Kapsanan süre</dt>
+                        <dd>@Model.CoveredDayCount gün</dd>
+                    </div>
+                    <div>
+                        <dt>Planlanan tutar</dt>
+                        <dd>@Model.ScheduledAmount?.ToString("C2", tr)</dd>
+                    </div>
+                    <div>
+                        <dt>Plan başlangıcı</dt>
+                        <dd>@FormatDate(Model.PlanStartedOn)</dd>
+                    </div>
+                    <div>
+                        <dt>Vadesi gelen toplam</dt>
+                        <dd>@Model.ExpectedTotal.ToString("C2", tr)</dd>
+                    </div>
+                </dl>
+            }
+        </section>
+
+        <section class="subscriber-payment-panel" aria-labelledby="deferral-title">
+            <div class="subscriber-payment-panel-heading">
+                <div>
+                    <span class="management-eyebrow">ERTELEME</span>
+                    <h2 id="deferral-title">Ödeme tarihini ertele</h2>
+                </div>
+                @if (Model.ActiveDeferralCount > 0)
+                {
+                    <span class="management-status passive">
+                        @Model.ActiveDeferralCount aktif erteleme
+                    </span>
+                }
+            </div>
+
+            @if (!Model.HasPaymentPlan || !Model.NextOriginalDueDate.HasValue)
+            {
+                <div class="subscriber-payment-empty compact">
+                    <span>Ertelenebilecek açık bir ödeme günü bulunmuyor.</span>
+                </div>
+            }
+            else
+            {
+                @if (Model.HasActiveDeferral)
+                {
+                    <div class="subscriber-payment-deferral-current">
+                        <span>Aktif erteleme</span>
+                        <strong>
+                            @FormatDate(Model.NextOriginalDueDate)
+                            <span aria-hidden="true">→</span>
+                            @FormatDate(Model.NextEffectiveDueDate)
+                        </strong>
+                        @if (!string.IsNullOrWhiteSpace(Model.ActiveDeferralReason))
+                        {
+                            <small>@Model.ActiveDeferralReason</small>
+                        }
+                        <form asp-action="CancelDeferral"
+                              asp-route-subscriberId="@Model.SubscriberId"
+                              asp-route-deferralId="@Model.ActiveDeferralId"
+                              method="post"
+                              data-confirm="Bu ertelemeyi geri almak istediğinize emin misiniz?">
+                            @Html.AntiForgeryToken()
+                            <button class="management-button management-button-danger" type="submit">
+                                Ertelemeyi geri al
+                            </button>
+                        </form>
+                    </div>
+                }
+
+                <form class="subscriber-payment-deferral-form"
+                      asp-action="Defer"
+                      asp-route-subscriberId="@Model.SubscriberId"
+                      method="post">
+                    @Html.AntiForgeryToken()
+                    <input asp-for="DeferralInput.OriginalDueDate"
+                           type="hidden"
+                           value="@Model.NextOriginalDueDate.Value.ToString("yyyy-MM-dd")" />
+
+                    <div class="management-field">
+                        <label asp-for="DeferralInput.DeferredUntil"></label>
+                        <input asp-for="DeferralInput.DeferredUntil"
+                               type="date"
+                               asp-format="{0:yyyy-MM-dd}"
+                               min="@Model.EarliestDeferralDate.ToString("yyyy-MM-dd")"
+                               max="@Model.LatestDeferralDate.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="DeferralInput.DeferredUntil"
+                              class="field-validation-error"></span>
+                    </div>
+
+                    <div class="management-field">
+                        <label asp-for="DeferralInput.Reason"></label>
+                        <textarea asp-for="DeferralInput.Reason"
+                                  rows="3"
+                                  maxlength="500"
+                                  placeholder="İsteğe bağlı açıklama"></textarea>
+                        <span asp-validation-for="DeferralInput.Reason"
+                              class="field-validation-error"></span>
+                    </div>
+
+                    <button class="management-button management-button-primary" type="submit">
+                        Ödeme tarihini ertele
+                    </button>
+                </form>
+            }
+        </section>
+    </div>
+
+    <section class="subscriber-payment-panel subscriber-payment-wide" aria-labelledby="movement-title">
+        <div class="subscriber-payment-panel-heading">
+            <div>
+                <span class="management-eyebrow">HAREKETLER</span>
+                <h2 id="movement-title">Ödeme hareketleri</h2>
+            </div>
+            <span class="subscriber-payment-count">@Model.Movements.Count kayıt</span>
+        </div>
+
+        @if (Model.Movements.Count == 0)
+        {
+            <div class="subscriber-payment-empty compact">
+                <span>Henüz ödeme hareketi bulunmuyor.</span>
+            </div>
+        }
+        else
+        {
+            <div class="subscriber-payment-timeline">
+                @foreach (var movement in Model.Movements)
+                {
+                    <article class="subscriber-payment-movement @movement.CssClass">
+                        <div class="subscriber-payment-movement-icon" aria-hidden="true">
+                            @(movement.Kind switch
+                            {
+                                "collection" => "₺",
+                                "deferral" => "↗",
+                                "cancellation" => "↶",
+                                _ => "•"
+                            })
+                        </div>
+                        <div class="subscriber-payment-movement-body">
+                            <div>
+                                <strong>@movement.Title</strong>
+                                <span>@movement.Status</span>
+                            </div>
+                            <p>@movement.Description</p>
+                            <small>
+                                @movement.Date.ToString("d MMMM yyyy", tr)
+                                @if (movement.Time.HasValue)
+                                {
+                                    <text> · @movement.Time.Value.ToString("HH:mm")</text>
+                                }
+                            </small>
+                        </div>
+                        @if (movement.Amount.HasValue)
+                        {
+                            <strong class="subscriber-payment-movement-amount @(movement.ReducesBalance ? "credit" : "")">
+                                @(movement.ReducesBalance ? "−" : "+")@movement.Amount.Value.ToString("C2", tr)
+                            </strong>
+                        }
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+    <div class="subscriber-payment-layout subscriber-payment-history-layout">
+        <section class="subscriber-payment-panel" aria-labelledby="collection-history-title">
+            <div class="subscriber-payment-panel-heading">
+                <div>
+                    <span class="management-eyebrow">TAHSİLATLAR</span>
+                    <h2 id="collection-history-title">Ödeme alınan tarihler</h2>
+                </div>
+                <span class="subscriber-payment-count">@Model.Collections.Count kayıt</span>
+            </div>
+
+            @if (Model.Collections.Count == 0)
+            {
+                <div class="subscriber-payment-empty compact">
+                    <span>Henüz tahsil edilmiş ödeme bulunmuyor.</span>
+                </div>
+            }
+            else
+            {
+                <div class="subscriber-payment-history-list">
+                    @foreach (var collection in Model.Collections)
+                    {
+                        <article>
+                            <div>
+                                <strong>@collection.Date.ToString("d MMMM yyyy", tr)</strong>
+                                <small>
+                                    @if (collection.Time.HasValue)
+                                    {
+                                        <text>Saat @collection.Time.Value.ToString("HH:mm") · </text>
+                                    }
+                                    @collection.PaymentMethod
+                                    @if (collection.IsLegacyTimestamp)
+                                    {
+                                        <text> · Eski kayıt</text>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(collection.PaymentPeriodName))
+                                    {
+                                        <text> · @collection.PaymentPeriodName</text>
+                                    }
+                                    @if (collection.CoveredDayCount.HasValue)
+                                    {
+                                        <text> · @collection.CoveredDayCount.Value gün</text>
+                                    }
+                                </small>
+                                <small>@collection.DistributorName</small>
+                            </div>
+                            <strong>@collection.Amount.ToString("C2", tr)</strong>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="subscriber-payment-panel" aria-labelledby="deferral-history-title">
+            <div class="subscriber-payment-panel-heading">
+                <div>
+                    <span class="management-eyebrow">GEÇMİŞ</span>
+                    <h2 id="deferral-history-title">Erteleme geçmişi</h2>
+                </div>
+                <span class="subscriber-payment-count">@Model.Deferrals.Count kayıt</span>
+            </div>
+
+            @if (Model.Deferrals.Count == 0)
+            {
+                <div class="subscriber-payment-empty compact">
+                    <span>Bu abone için erteleme hareketi bulunmuyor.</span>
+                </div>
+            }
+            else
+            {
+                <div class="subscriber-payment-history-list">
+                    @foreach (var deferral in Model.Deferrals)
+                    {
+                        <article>
+                            <div>
+                                <strong>
+                                    @deferral.PreviousDueDate.ToString("d MMMM", tr)
+                                    <span aria-hidden="true">→</span>
+                                    @deferral.DeferredUntil.ToString("d MMMM yyyy", tr)
+                                </strong>
+                                <small>
+                                    @deferral.CreatedAt.ToString("d MMMM yyyy HH:mm", tr)
+                                    · @(deferral.IsActive ? "Aktif" : "Geri alındı")
+                                </small>
+                                @if (!string.IsNullOrWhiteSpace(deferral.Reason))
+                                {
+                                    <p>@deferral.Reason</p>
+                                }
+                            </div>
+                            @if (deferral.IsActive)
+                            {
+                                <form asp-action="CancelDeferral"
+                                      asp-route-subscriberId="@Model.SubscriberId"
+                                      asp-route-deferralId="@deferral.Id"
+                                      method="post"
+                                      data-confirm="Bu ertelemeyi geri almak istediğinize emin misiniz?">
+                                    @Html.AntiForgeryToken()
+                                    <button class="management-button management-button-danger"
+                                            type="submit">
+                                        Geri al
+                                    </button>
+                                </form>
+                            }
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+    </div>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/management.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,165 @@
+@model GazeteDagitim.Web.Models.ViewModels.DeliveredSubscribersPageViewModel
+@using System.Globalization
+@{
+    var pageTitle = Model.ShowAllSubscribers
+        ? "Abone Listesi"
+        : "Teslim Edilen Aboneler";
+    var listMode = Model.ShowAllSubscribers ? "all" : "delivered";
+    ViewData["Title"] = pageTitle;
+    ViewData["ParentMenu"] = $"/deliveries?date={Model.Date:yyyy-MM-dd}";
+    var tr = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/operations.css" asp-append-version="true" />
+}
+
+<main id="main-content" class="page-shell delivery-detail-page">
+    <header class="page-heading">
+        <div>
+            <p class="eyebrow">SALT OKUNUR LİSTE</p>
+            <h1>@pageTitle</h1>
+            @if (Model.ShowAllSubscribers)
+            {
+                <p>Seçilen tarihteki genel abone listesi ve teslimat durumları gösterilir; bu ekrandan işlem yapılamaz.</p>
+            }
+            else
+            {
+                <p>Yalnızca teslimatı tamamlanan aboneler gösterilir; bu ekrandan işlem yapılamaz.</p>
+            }
+        </div>
+        <form asp-action="Delivered" method="get" class="date-control">
+            <label for="date">Dağıtım tarihi</label>
+            <input id="date"
+                   name="date"
+                   type="date"
+                   value="@Model.Date.ToString("yyyy-MM-dd")" />
+            <input name="list" type="hidden" value="@listMode" />
+            <button class="button button-secondary" type="submit">Tarihe git</button>
+        </form>
+    </header>
+
+    <section class="summary-grid summary-grid-three" aria-label="Abone listesi görünüm seçenekleri">
+        <a asp-action="Delivered"
+           asp-route-date="@Model.Date.ToString("yyyy-MM-dd")"
+           asp-route-list="delivered"
+           class="summary-card success-card summary-card-link @(!Model.ShowAllSubscribers ? "is-selected" : "")"
+           aria-label="Teslim edilen aboneleri göster">
+            <span>Teslim Edilen</span>
+            <strong>@Model.DeliveredCount</strong>
+            <small>abone</small>
+            <small class="summary-card-open">
+                @(!Model.ShowAllSubscribers ? "Görüntüleniyor" : "Listeyi aç")
+            </small>
+        </a>
+        <a asp-action="Delivered"
+           asp-route-date="@Model.Date.ToString("yyyy-MM-dd")"
+           asp-route-list="all"
+           class="summary-card summary-card-link @(Model.ShowAllSubscribers ? "is-selected" : "")"
+           aria-label="Genel abone listesini göster">
+            <span>Abone Listesi</span>
+            <strong>@Model.SubscriberCount</strong>
+            <small>toplam abone</small>
+            <small class="summary-card-open">
+                @(Model.ShowAllSubscribers ? "Görüntüleniyor" : "Listeyi aç")
+            </small>
+        </a>
+        <article class="summary-card">
+            <span>Liste tarihi</span>
+            <strong class="summary-date">@Model.Date.ToString("dd MMM", tr)</strong>
+            <small>@Model.Date.ToString("dddd", tr)</small>
+        </article>
+    </section>
+
+    <section class="panel table-panel">
+        <div class="panel-heading">
+            <div>
+                <h2>@pageTitle</h2>
+                @if (Model.ShowAllSubscribers)
+                {
+                    <p>Genel listedeki abonelerin teslimat durumları gösterilir.</p>
+                }
+                else
+                {
+                    <p>Teslim edilen aboneler değiştirilemez şekilde listelenir.</p>
+                }
+            </div>
+            <span class="count-badge">@Model.Rows.Count</span>
+        </div>
+
+        @if (Model.Rows.Count == 0)
+        {
+            <div class="empty-state">
+                @if (Model.ShowAllSubscribers)
+                {
+                    <strong>Bu tarihte listelenecek abone bulunmuyor.</strong>
+                    <span>Aktif abone kayıtları oluşturulduğunda burada görünür.</span>
+                }
+                else
+                {
+                    <strong>Bu tarihte teslim edilmiş abone bulunmuyor.</strong>
+                    <span>Teslimatlar Günlük Dağıtımlar ekranında işaretlendikçe burada görünür.</span>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="responsive-table">
+                <table class="data-table delivered-detail-table">
+                    <caption class="sr-only">
+                        @Model.Date.ToString("d MMMM yyyy", tr) tarihindeki @pageTitle.ToLower(tr)
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Abone</th>
+                            <th>Dağıtıcı</th>
+                            <th>Gazete</th>
+                            <th>Kapsam</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            <td data-label="Abone" class="subscriber-cell">
+                                <strong>@row.SubscriberName</strong>
+                            </td>
+                            <td data-label="Dağıtıcı">
+                                <span class="tag">@row.DistributorName</span>
+                            </td>
+                            <td data-label="Gazete">
+                                @if (row.HasDelivery)
+                                {
+                                    <strong>@row.NewspaperCount adet</strong>
+                                }
+                                else
+                                {
+                                    <span aria-label="Gazete teslimatı yok">—</span>
+                                }
+                            </td>
+                            <td data-label="Kapsam">
+                                <span>@(row.HasDelivery ? row.CoverageLabel : "—")</span>
+                            </td>
+                            <td data-label="Durum">
+                                @if (row.Delivered)
+                                {
+                                    <span class="status-tag scheduled">✓ Teslim edildi</span>
+                                }
+                                else if (row.HasDelivery)
+                                {
+                                    <span class="status-tag pending">Teslim bekliyor</span>
+                                }
+                                else
+                                {
+                                    <span class="status-tag unscheduled">Teslimat yok</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</main>

@@ -1,0 +1,27 @@
+@model GazeteDagitim.Web.Models.ViewModels.Subscribers.SubscriberFormViewModel
+@{
+    ViewData["Title"] = "Yeni Abone";
+    ViewData["ParentMenu"] = "/menu";
+}
+
+<link rel="stylesheet" href="~/css/management.css" asp-append-version="true" />
+
+<main id="main-content" class="management-page management-page-narrow">
+    <header class="management-heading">
+        <div>
+            <span class="management-eyebrow">ABONE YÖNETİMİ</span>
+            <h1>Yeni abone</h1>
+            <p>Abonenin iletişim, teslimat, yayın günü ve ödeme bilgilerini tanımlayın.</p>
+        </div>
+    </header>
+
+    <form class="management-form" asp-action="Create" method="post" novalidate>
+        @Html.AntiForgeryToken()
+        <partial name="_Form" model="Model" />
+    </form>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/management.js" asp-append-version="true"></script>
+}

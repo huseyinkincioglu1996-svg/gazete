@@ -1,0 +1,36 @@
+@model GazeteDagitim.Web.Models.ViewModels.MenuPageViewModel
+@{
+    ViewData["Title"] = "Firma Menüsü";
+    ViewData["BodyClass"] = "menu-body";
+    ViewData["ParentMenu"] = Model.ParentMenuUrl;
+}
+
+<main id="main-content" class="menu-page">
+    <div class="menu-page-inner">
+        <header class="menu-identity company-menu-identity">
+            <div class="company-menu-heading">
+                <span class="menu-identity-icon" aria-hidden="true">@Model.Icon</span>
+                <div class="menu-heading-copy">
+                    <p>@Model.Eyebrow</p>
+                    <h1>@Model.Title</h1>
+                </div>
+            </div>
+            @await Html.PartialAsync(
+                "_HeaderBranding",
+                new GazeteDagitim.Web.Models.ViewModels.BrandingDisplayViewModel(
+                    Model.Branding,
+                    IsCorporate: true))
+        </header>
+
+        <nav class="menu-tile-grid company-menu-grid" aria-label="Gazete firması menüsü">
+            @foreach (var item in Model.Items)
+            {
+                <a class="menu-tile" href="@item.Url">
+                    <span class="menu-tile-icon" aria-hidden="true">@item.Icon</span>
+                    <strong>@item.Label</strong>
+                    <small>@item.Description</small>
+                </a>
+            }
+        </nav>
+    </div>
+</main>

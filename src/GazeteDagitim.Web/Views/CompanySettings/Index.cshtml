@@ -1,0 +1,146 @@
+@model GazeteDagitim.Web.Models.ViewModels.CompanySettingsPageViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Firma Ayarları";
+    ViewData["ParentMenu"] = "/menu/company";
+    var tr = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/operations.css" asp-append-version="true" />
+}
+
+<main id="main-content" class="page-shell">
+    <header class="page-heading">
+        <div>
+            <p class="eyebrow">KURUMSAL KİMLİK</p>
+            <h1>Firma Ayarları</h1>
+            <p>Kurumsal görselleri ve nakit gazete satışlarında kullanılacak birim fiyatı tek merkezden yönetin.</p>
+        </div>
+    </header>
+
+    @if (TempData["Notice"] is string notice)
+    {
+        <div class="feedback success" role="status">@notice</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="feedback error" role="alert">@error</div>
+    }
+    <div asp-validation-summary="All" class="feedback error" role="alert"></div>
+
+    <form asp-action="Save" method="post" enctype="multipart/form-data" class="settings-form">
+        <section class="branding-settings-grid">
+            <article class="panel branding-card">
+                <div class="panel-heading"><div><h2>Firma logosu</h2><p>PNG, JPEG veya WebP · en fazla 2 MB</p></div></div>
+                <div class="branding-preview">
+                    @if (!string.IsNullOrWhiteSpace(Model.CompanyLogoDataUrl))
+                    {
+                        <img src="@Model.CompanyLogoDataUrl" alt="Mevcut firma logosu" data-image-preview="company" />
+                    }
+                    else
+                    {
+                        <span class="branding-fallback" data-image-fallback="company">GD</span>
+                        <img src="" alt="Yeni firma logosu önizlemesi" hidden data-image-preview="company" />
+                    }
+                </div>
+                <label class="file-field">
+                    <span>Yeni logo seç</span>
+                    <input type="file" name="CompanyLogo" accept="image/png,image/jpeg,image/webp" data-image-input="company" />
+                </label>
+                @if (!string.IsNullOrWhiteSpace(Model.CompanyLogoDataUrl))
+                {
+                    <label class="inline-check"><input type="checkbox" name="RemoveCompanyLogo" value="true" /> Mevcut logoyu kaldır</label>
+                }
+            </article>
+
+            <article class="panel branding-card">
+                <div class="panel-heading"><div><h2>Dağıtıcı profili</h2><p>Kurumsal kartta gösterilecek vitrin dağıtıcısı</p></div></div>
+                <label>
+                    Vitrin dağıtıcısı
+                    <select name="FeaturedDistributorId" data-featured-distributor>
+                        <option value="">Dağıtıcı seçilmedi</option>
+                        @foreach (var distributor in Model.Distributors)
+                        {
+                            <option value="@distributor.Id" selected="@(Model.FeaturedDistributorId == distributor.Id)">
+                                @distributor.Name@(!distributor.IsActive ? " (Pasif)" : "")
+                            </option>
+                        }
+                    </select>
+                </label>
+                <div class="branding-preview">
+                    @if (!string.IsNullOrWhiteSpace(Model.DistributorProfileImageDataUrl))
+                    {
+                        <img src="@Model.DistributorProfileImageDataUrl" alt="Mevcut dağıtıcı profil görseli" data-image-preview="profile" />
+                    }
+                    else
+                    {
+                        <span class="branding-fallback" data-image-fallback="profile">DP</span>
+                        <img src="" alt="Yeni profil görseli önizlemesi" hidden data-image-preview="profile" />
+                    }
+                </div>
+                <label class="file-field">
+                    <span>Yeni profil görseli seç</span>
+                    <input type="file" name="DistributorProfileImage" accept="image/png,image/jpeg,image/webp" data-image-input="profile" />
+                </label>
+                @if (!string.IsNullOrWhiteSpace(Model.DistributorProfileImageDataUrl))
+                {
+                    <label class="inline-check"><input type="checkbox" name="RemoveDistributorProfileImage" value="true" /> Profil görselini kaldır</label>
+                }
+            </article>
+
+            <article class="panel branding-card company-price-card">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Gazete birim satış fiyatı</h2>
+                        <p>Günlük Dağıtımlar ekranındaki ekstra nakit gazete satışlarında kullanılır.</p>
+                    </div>
+                    <span class="status-tag @(Model.NewspaperUnitPrice is > 0 ? "success" : "pending")">
+                        @(Model.NewspaperUnitPrice is > 0 ? "Fiyat tanımlı" : "Fiyat bekleniyor")
+                    </span>
+                </div>
+
+                <div class="company-price-body">
+                    <span class="company-price-icon" aria-hidden="true">₺</span>
+                    <label class="company-price-field">
+                        <span>Birim satış fiyatı</span>
+                        <div class="currency-input">
+                            <span>₺</span>
+                            <input type="number"
+                                   name="NewspaperUnitPrice"
+                                   value="@Model.NewspaperUnitPrice?.ToString("0.00", CultureInfo.InvariantCulture)"
+                                   min="0.01"
+                                   max="999999999"
+                                   step="0.01"
+                                   inputmode="decimal"
+                                   placeholder="Örn. 15,00"
+                                   required
+                                   aria-describedby="newspaper-unit-price-help" />
+                        </div>
+                        <small id="newspaper-unit-price-help">
+                            Nakit satış tutarı bu fiyat × satılan gazete adedi olarak otomatik hesaplanır.
+                        </small>
+                    </label>
+                    <div class="company-price-summary">
+                        <span>Geçerli satış fiyatı</span>
+                        <strong>
+                            @(Model.NewspaperUnitPrice is > 0
+                                ? Model.NewspaperUnitPrice.Value.ToString("C2", tr)
+                                : "Henüz belirlenmedi")
+                        </strong>
+                        <small>Dağıtıcı maliyetinden bağımsızdır.</small>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <div class="sticky-actions">
+            <span>Satış fiyatı kaydedildiğinde Nakit Satış işlemlerinde otomatik kullanılır.</span>
+            <button class="button button-primary" type="submit">Firma ayarlarını kaydet</button>
+        </div>
+    </form>
+</main>
+
+@section Scripts {
+    <script src="~/js/company-settings.js" asp-append-version="true"></script>
+}

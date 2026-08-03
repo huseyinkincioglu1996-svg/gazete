@@ -10,23 +10,31 @@ const getInitials = (name) => String(name || '')
   .map((part) => part[0]?.toLocaleUpperCase('tr-TR') || '')
   .join('') || 'D';
 
-function HeaderBranding() {
+function HeaderBranding({ variant = 'compact' }) {
   const { branding } = useBranding();
   const distributor = branding.vitrin_dagitici;
+  const isCorporate = variant === 'corporate';
 
   return (
-    <div className="header-branding" role="group" aria-label="Firma ve dağıtıcı kimliği">
-      <div className="header-branding-unit" role="group" aria-label="Firma logosu">
+    <div
+      className={`header-branding header-branding--${isCorporate ? 'corporate' : 'compact'}`}
+      role="group"
+      aria-label="Firma ve dağıtıcı kimliği"
+    >
+      <div className="header-branding-unit company" role="group" aria-label="Firma kimliği: Gazete Dağıtım">
         <span className="header-branding-image logo">
           {branding.firma_logosu ? (
             <img src={branding.firma_logosu} alt="" />
           ) : (
-            <span aria-hidden="true">📰</span>
+            <span className="header-branding-logo-fallback" aria-hidden="true">GD</span>
           )}
         </span>
         <span className="header-branding-copy">
-          <small>FİRMA</small>
+          <small>{isCorporate ? 'KURUMSAL FİRMA' : 'FİRMA'}</small>
           <strong>Gazete Dağıtım</strong>
+          {isCorporate && (
+            <span className="header-branding-tagline">DAĞITIM YÖNETİM SİSTEMİ</span>
+          )}
         </span>
       </div>
 

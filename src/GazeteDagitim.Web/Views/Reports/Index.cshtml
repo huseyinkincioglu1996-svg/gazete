@@ -1,0 +1,159 @@
+@model GazeteDagitim.Web.Models.ViewModels.ReportsPageViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Raporlar ve Özet";
+    ViewData["ParentMenu"] = "/menu";
+    var tr = CultureInfo.GetCultureInfo("tr-TR");
+    var subscriberCollectionRate = Model.SubscriberCollectionRate
+        .ToString("0.##", CultureInfo.InvariantCulture);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/operations.css" asp-append-version="true" />
+}
+
+<main id="main-content" class="page-shell">
+    <header class="page-heading">
+        <div>
+            <p class="eyebrow">GÜNLÜK VE AYLIK ÖZET</p>
+            <h1>Raporlar ve Özet</h1>
+            <p>
+                Seçtiğiniz günün dağıtım durumunu ve seçilen ayın abone
+                tahsilat özetini inceleyin.
+            </p>
+        </div>
+        <form method="get" class="date-control">
+            <label for="date">Rapor tarihi</label>
+            <input id="date" name="date" type="date" value="@Model.Date.ToString("yyyy-MM-dd")" />
+            <button class="button button-secondary" type="submit">Yenile</button>
+        </form>
+    </header>
+
+    <section class="subscriber-monthly-summary"
+             aria-labelledby="subscriber-monthly-summary-title">
+        <article class="summary-card money-card subscriber-monthly-card">
+            <div class="subscriber-monthly-primary">
+                <span id="subscriber-monthly-summary-title">
+                    Şu anda toplanan
+                </span>
+                <strong data-testid="subscriber-monthly-collected">
+                    @Model.SubscriberCollectedTotal.ToString("C2", tr)
+                </strong>
+                <small>
+                    @Model.Date.ToString("MMMM yyyy", tr) ayında tahsil edilen
+                    abone ödemeleri
+                </small>
+            </div>
+
+            <div class="subscriber-monthly-due">
+                <div>
+                    <span>Bu ay toplanması gereken</span>
+                    <strong data-testid="subscriber-monthly-due">
+                        @Model.SubscriberDueTotal.ToString("C2", tr)
+                    </strong>
+                </div>
+                <small>
+                    Kalan:
+                    <b>@Model.SubscriberRemainingTotal.ToString("C2", tr)</b>
+                </small>
+            </div>
+
+            <div class="subscriber-collection-progress"
+                 role="progressbar"
+                 aria-label="Aylık tahsilat oranı"
+                 aria-valuemin="0"
+                 aria-valuemax="100"
+                 aria-valuenow="@subscriberCollectionRate">
+                <span style="width: @subscriberCollectionRate%"></span>
+            </div>
+            <small class="subscriber-collection-rate">
+                Tahsilat oranı: %@Model.SubscriberCollectionRate.ToString("0.##", tr)
+            </small>
+        </article>
+    </section>
+
+    <section class="summary-grid summary-grid-four">
+        <article class="summary-card">
+            <span>Dağıtılan gazete</span>
+            <strong>@Model.NewspaperTotal</strong>
+            <small>adet</small>
+        </article>
+        <article class="summary-card success-card">
+            <span>Tamamlanan dağıtım</span>
+            <strong>@Model.CompletedDeliveryCount</strong>
+            <small>@Model.PendingDeliveryCount beklemede</small>
+        </article>
+        <article class="summary-card money-card">
+            <span>Toplam ödeme</span>
+            <strong>@Model.PaymentTotal.ToString("C2", tr)</strong>
+            <small>@Model.Payments.Count ödeme kaydı</small>
+        </article>
+        <article class="summary-card warning-card">
+            <span>Bekleyen ödeme</span>
+            <strong>@Model.PendingPaymentTotal.ToString("C2", tr)</strong>
+            <small>Tahsil oranı: %@Model.CollectionRate.ToString("0.##", tr)</small>
+        </article>
+    </section>
+
+    <div class="two-panel-grid">
+        <section class="panel table-panel">
+            <div class="panel-heading">
+                <div><h2>Günlük dağıtımlar</h2><p>@Model.Date.ToString("d MMMM yyyy", tr)</p></div>
+                <span class="count-badge">@Model.Deliveries.Count</span>
+            </div>
+            @if (Model.Deliveries.Count == 0)
+            {
+                <p class="empty-state">Bu tarih için dağıtım kaydı yok.</p>
+            }
+            else
+            {
+                <div class="responsive-table">
+                    <table class="data-table">
+                        <thead><tr><th>Dağıtıcı</th><th>Gazete</th><th>Tutar</th><th>Durum</th></tr></thead>
+                        <tbody>
+                        @foreach (var delivery in Model.Deliveries)
+                        {
+                            <tr>
+                                <td data-label="Dağıtıcı">@delivery.DistributorName</td>
+                                <td data-label="Gazete">@delivery.NewspaperCount adet</td>
+                                <td data-label="Tutar">@delivery.Amount.ToString("C2", tr)</td>
+                                <td data-label="Durum"><span class="status-tag @(delivery.Status == "Tamamlandı" ? "success" : "pending")">@delivery.Status</span></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        <section class="panel table-panel">
+            <div class="panel-heading">
+                <div><h2>Günlük ödemeler</h2><p>Vadesi seçilen tarihte olanlar</p></div>
+                <span class="count-badge">@Model.Payments.Count</span>
+            </div>
+            @if (Model.Payments.Count == 0)
+            {
+                <p class="empty-state">Bu tarih için ödeme kaydı yok.</p>
+            }
+            else
+            {
+                <div class="responsive-table">
+                    <table class="data-table">
+                        <thead><tr><th>Dağıtıcı</th><th>Tür</th><th>Tutar</th><th>Durum</th></tr></thead>
+                        <tbody>
+                        @foreach (var payment in Model.Payments)
+                        {
+                            <tr>
+                                <td data-label="Dağıtıcı">@payment.DistributorName</td>
+                                <td data-label="Tür">@payment.PaymentType</td>
+                                <td data-label="Tutar">@payment.Amount.ToString("C2", tr)</td>
+                                <td data-label="Durum"><span class="status-tag @(payment.IsPaid ? "success" : "pending")">@(payment.IsPaid ? "Ödendi" : "Beklemede")</span></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</main>

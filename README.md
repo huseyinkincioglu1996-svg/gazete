@@ -1,5 +1,10 @@
 # Gazete Dağıtım ve Ödeme Takip Sistemi
 
+> Yeni ana uygulama C# / ASP.NET Core MVC / .NET 9 ve Microsoft SQL Server ile
+> `src/GazeteDagitim.Web` altında çalışır. Kurulum ve çalıştırma adımları için
+> [README-DOTNET.md](README-DOTNET.md) dosyasını kullanın. Eski React/Express/MongoDB
+> sürümü geçiş güvenliği için bu depoda korunmaktadır.
+
 Gazete dağıtıcılarını, teslimat kayıtlarını ve ödeme süreçlerini yöneten React, Express ve MongoDB tabanlı bir uygulama.
 
 ## Hızlı başlangıç (Docker gerektirmez)

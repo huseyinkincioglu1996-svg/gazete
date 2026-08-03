@@ -1,0 +1,125 @@
+@model GazeteDagitim.Web.Models.ViewModels.PaymentPeriods.PaymentPeriodIndexViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Ödeme Periyotları";
+    ViewData["ParentMenu"] = "/menu";
+    var tr = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+<link rel="stylesheet" href="~/css/management.css" asp-append-version="true" />
+
+<main id="main-content" class="management-page">
+    <header class="management-heading">
+        <div>
+            <span class="management-eyebrow">AYARLAR</span>
+            <h1>Ödeme periyotları</h1>
+            <p>Abone kayıtlarında kullanılacak tahsilat zamanı, kapsamı ve tutarını yönetin.</p>
+        </div>
+        <a class="management-button management-button-primary" asp-action="Create">Yeni periyot</a>
+    </header>
+
+    @if (TempData["Notice"] is string notice)
+    {
+        <div class="management-feedback success" role="status">@notice</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="management-feedback error" role="alert">@error</div>
+    }
+
+    <nav class="management-filters" aria-label="Ödeme periyodu durum filtresi">
+        <a class="@(Model.Status == "all" ? "active" : null)" asp-action="Index" asp-route-status="all">
+            Tümü
+        </a>
+        <a class="@(Model.Status == "active" ? "active" : null)" asp-action="Index" asp-route-status="active">
+            Aktif
+        </a>
+        <a class="@(Model.Status == "inactive" ? "active" : null)" asp-action="Index" asp-route-status="inactive">
+            Pasif
+        </a>
+    </nav>
+
+    <div class="management-table-shell">
+        <table class="management-table">
+            <thead>
+                <tr>
+                    <th>Periyot</th>
+                    <th>Tahsilat zamanı</th>
+                    <th>Ödeme kapsamı</th>
+                    <th>Tutar</th>
+                    <th>Açıklama</th>
+                    <th>Durum</th>
+                    <th class="management-actions-heading">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Items.Count == 0)
+            {
+                <tr>
+                    <td class="management-empty" colspan="7">Bu filtreye uygun ödeme periyodu bulunamadı.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model.Items)
+                {
+                    <tr class="@(!item.IsActive ? "is-passive" : null)">
+                        <td data-label="Periyot"><strong>@item.Name</strong></td>
+                        <td data-label="Tahsilat zamanı">
+                            @if (item.CollectionDayOfMonth.HasValue && item.CollectionTime.HasValue)
+                            {
+                                <strong>
+                                    @(item.IsDaily
+                                        ? "Her gün"
+                                        : item.DayCount == 10
+                                            ? "Ayın 10., 20. ve son günü"
+                                            : $"Ayın {item.CollectionDayOfMonth}. günü")
+                                </strong>
+                                <small>@item.CollectionTime.Value.ToString("HH:mm")</small>
+                            }
+                            else
+                            {
+                                <span class="management-muted">Belirlenmedi</span>
+                            }
+                        </td>
+                        <td data-label="Ödeme kapsamı">
+                            @(item.IsDaily ? "Her ödeme 1 gün" : $"{item.DayCount} gün")
+                        </td>
+                        <td data-label="Tutar">
+                            @(item.CollectionAmount.HasValue
+                                ? item.CollectionAmount.Value.ToString("C2", tr)
+                                : "Belirlenmedi")
+                        </td>
+                        <td data-label="Açıklama">
+                            @(string.IsNullOrWhiteSpace(item.Description) ? "Açıklama yok" : item.Description)
+                        </td>
+                        <td data-label="Durum">
+                            <span class="management-status @(item.IsActive ? "active" : "passive")">
+                                @(item.IsActive ? "Aktif" : "Pasif")
+                            </span>
+                        </td>
+                        <td data-label="İşlemler">
+                            <div class="management-row-actions">
+                                <a class="management-button management-button-secondary"
+                                   asp-action="Edit"
+                                   asp-route-id="@item.Id">
+                                    Düzenle
+                                </a>
+                                <form asp-action="ToggleStatus" asp-route-id="@item.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="isActive" value="@(!item.IsActive)" />
+                                    <input type="hidden" name="status" value="@Model.Status" />
+                                    <button class="management-button @(item.IsActive ? "management-button-danger" : "management-button-primary")"
+                                            type="submit">
+                                        @(item.IsActive ? "Pasife al" : "Aktifleştir")
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</main>

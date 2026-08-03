@@ -1,0 +1,135 @@
+@model GazeteDagitim.Web.Models.ViewModels.Distributors.DistributorIndexViewModel
+@{
+    ViewData["Title"] = "Dağıtıcılar";
+    ViewData["ParentMenu"] = "/menu/company";
+}
+
+<link rel="stylesheet" href="~/css/management.css" asp-append-version="true" />
+
+<main id="main-content" class="management-page">
+    <header class="management-heading">
+        <div>
+            <span class="management-eyebrow">GAZETE FİRMASI</span>
+            <h1>Dağıtıcılar</h1>
+            <p>Dağıtım bölgesi, çalışma günleri ve ödeme planlarını yönetin.</p>
+        </div>
+        <a class="management-button management-button-primary" asp-action="Create">Yeni dağıtıcı</a>
+    </header>
+
+    @if (TempData["Notice"] is string notice)
+    {
+        <div class="management-feedback success" role="status">@notice</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="management-feedback error" role="alert">@error</div>
+    }
+
+    <nav class="management-filters" aria-label="Dağıtıcı durum filtresi">
+        <a class="@(!Model.IncludeInactive ? "active" : null)"
+           asp-action="Index"
+           asp-route-includeInactive="false">
+            Aktif dağıtıcılar
+        </a>
+        <a class="@(Model.IncludeInactive ? "active" : null)"
+           asp-action="Index"
+           asp-route-includeInactive="true">
+            Tüm kayıtlar
+        </a>
+    </nav>
+
+    <div class="management-table-shell">
+        <table class="management-table">
+            <thead>
+                <tr>
+                    <th>Dağıtıcı</th>
+                    <th>Bölge ve dağıtım</th>
+                    <th>Ödeme planı</th>
+                    <th>Birim maliyet</th>
+                    <th>Durum</th>
+                    <th class="management-actions-heading">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Items.Count == 0)
+            {
+                <tr>
+                    <td class="management-empty" colspan="6">Gösterilecek dağıtıcı bulunamadı.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model.Items)
+                {
+                    <tr class="@(!item.IsActive ? "is-passive" : null)">
+                        <td data-label="Dağıtıcı">
+                            <strong>@item.Name</strong>
+                            <small>@item.Phone</small>
+                            <small>@item.Address</small>
+                        </td>
+                        <td data-label="Bölge ve dağıtım">
+                            <strong>@item.Zone</strong>
+                            <div class="management-chip-list">
+                                @if (item.DistributionDays.Count == 0)
+                                {
+                                    <span class="management-muted">Gün seçilmemiş</span>
+                                }
+                                else
+                                {
+                                    @foreach (var day in item.DistributionDays)
+                                    {
+                                        <span class="management-chip">@day</span>
+                                    }
+                                }
+                            </div>
+                        </td>
+                        <td data-label="Ödeme planı">
+                            <strong>@item.PaymentType</strong>
+                            <div class="management-chip-list">
+                                @foreach (var day in item.PaymentDays)
+                                {
+                                    <span class="management-chip">@day</span>
+                                }
+                            </div>
+                        </td>
+                        <td data-label="Birim maliyet"><strong>@item.NewspaperPrice.ToString("N2") ₺</strong></td>
+                        <td data-label="Durum">
+                            <span class="management-status @(item.IsActive ? "active" : "passive")">
+                                @(item.IsActive ? "Aktif" : "Pasif")
+                            </span>
+                        </td>
+                        <td data-label="İşlemler">
+                            <div class="management-row-actions">
+                                <a class="management-button management-button-secondary"
+                                   asp-action="Edit"
+                                   asp-route-id="@item.Id">
+                                    Düzenle
+                                </a>
+                                @if (item.IsActive)
+                                {
+                                    <form asp-action="Deactivate"
+                                          asp-route-id="@item.Id"
+                                          method="post"
+                                          data-confirm="Dağıtıcı pasife alınsın mı? Geçmiş kayıtlar korunacaktır.">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden"
+                                               name="includeInactive"
+                                               value="@Model.IncludeInactive" />
+                                        <button class="management-button management-button-danger" type="submit">
+                                            Pasife al
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</main>
+
+@section Scripts {
+    <script src="~/js/management.js" asp-append-version="true"></script>
+}

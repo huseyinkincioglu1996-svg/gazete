@@ -1,0 +1,27 @@
+@model GazeteDagitim.Web.Models.ViewModels.Distributors.DistributorFormViewModel
+@{
+    ViewData["Title"] = "Yeni Dağıtıcı";
+    ViewData["ParentMenu"] = "/menu/company";
+}
+
+<link rel="stylesheet" href="~/css/management.css" asp-append-version="true" />
+
+<main id="main-content" class="management-page management-page-narrow">
+    <header class="management-heading">
+        <div>
+            <span class="management-eyebrow">GAZETE FİRMASI</span>
+            <h1>Yeni dağıtıcı</h1>
+            <p>Dağıtıcının çalışma bölgesini, günlerini ve ödeme planını tanımlayın.</p>
+        </div>
+    </header>
+
+    <form class="management-form" asp-action="Create" method="post" novalidate>
+        @Html.AntiForgeryToken()
+        <partial name="_Form" model="Model" />
+    </form>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/management.js" asp-append-version="true"></script>
+}

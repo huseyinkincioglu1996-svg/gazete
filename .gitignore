@@ -10,3 +10,9 @@ frontend/.env
 dist/
 build/
 backend/.local-mongodb/
+
+# Proje-yerel .NET SDK ve derleme çıktıları
+.dotnet/
+.vs/
+**/bin/
+**/obj/

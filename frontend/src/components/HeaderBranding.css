@@ -42,6 +42,17 @@
   letter-spacing: 0.02em;
 }
 
+.header-branding-logo-fallback {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: #fb3f79;
+  font-size: 0.76rem;
+  font-weight: 950;
+  letter-spacing: -0.055em;
+}
+
 .header-branding-image img {
   display: block;
   width: 100%;
@@ -79,6 +90,72 @@
   white-space: nowrap;
 }
 
+.header-branding-tagline {
+  display: none;
+}
+
+.header-branding--corporate {
+  gap: 10px;
+}
+
+.header-branding--corporate .header-branding-unit.company {
+  min-width: 252px;
+  gap: 12px;
+  border-color: rgb(255 255 255 / 24%);
+  border-radius: 14px;
+  padding: 9px 15px 9px 9px;
+  background:
+    linear-gradient(135deg, rgb(5 5 6 / 88%), rgb(24 24 28 / 78%));
+  box-shadow:
+    0 12px 26px rgb(0 0 0 / 30%),
+    inset 3px 0 0 #fb3f79;
+}
+
+.header-branding--corporate .header-branding-image.logo {
+  width: 52px;
+  height: 52px;
+  flex-basis: 52px;
+  border-color: rgb(255 255 255 / 20%);
+  border-radius: 11px;
+  padding: 4px;
+  background:
+    linear-gradient(145deg, #27272c 0%, #09090b 100%);
+  box-shadow: inset 0 0 0 1px rgb(169 0 59 / 32%);
+}
+
+.header-branding--corporate .header-branding-logo-fallback {
+  border-radius: 7px;
+  background: #0b0b0e;
+  font-size: 1rem;
+}
+
+.header-branding--corporate .header-branding-copy {
+  max-width: 182px;
+  gap: 2px;
+}
+
+.header-branding--corporate .header-branding-copy small {
+  color: #ff9fbb;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+}
+
+.header-branding--corporate .header-branding-copy strong {
+  font-size: 0.92rem;
+  letter-spacing: 0.01em;
+}
+
+.header-branding--corporate .header-branding-tagline {
+  display: block;
+  overflow: hidden;
+  color: rgb(255 255 255 / 58%);
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.075em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 700px) {
   .header-branding {
     gap: 5px;
@@ -104,5 +181,47 @@
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
+  }
+
+  .header-branding--corporate {
+    width: 100%;
+    align-items: stretch;
+    justify-content: stretch;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: 0;
+  }
+
+  .header-branding--corporate .header-branding-unit {
+    width: 100%;
+    border: 1px solid rgb(255 255 255 / 18%);
+    padding: 7px 10px 7px 7px;
+    background: rgb(0 0 0 / 32%);
+  }
+
+  .header-branding--corporate .header-branding-unit.company {
+    min-width: 0;
+    padding: 8px 12px 8px 8px;
+  }
+
+  .header-branding--corporate .header-branding-image.logo {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+  }
+
+  .header-branding--corporate .header-branding-copy {
+    position: static;
+    width: auto;
+    height: auto;
+    max-width: none;
+    margin: 0;
+    overflow: hidden;
+    clip: auto;
+    white-space: normal;
+  }
+
+  .header-branding--corporate .header-branding-tagline {
+    white-space: normal;
   }
 }

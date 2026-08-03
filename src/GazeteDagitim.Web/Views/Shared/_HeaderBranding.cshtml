@@ -1,0 +1,54 @@
+@model GazeteDagitim.Web.Models.ViewModels.BrandingDisplayViewModel
+@{
+    var branding = Model.Branding;
+    var variantClass = Model.IsCorporate ? "corporate" : "compact";
+}
+
+<div class="header-branding header-branding--@variantClass"
+     role="group"
+     aria-label="Firma ve dağıtıcı kimliği">
+    <div class="header-branding-unit company"
+         role="group"
+         aria-label="Firma kimliği: @branding.CompanyName">
+        <span class="header-branding-image logo">
+            @if (!string.IsNullOrWhiteSpace(branding.CompanyLogoUrl))
+            {
+                <img src="@branding.CompanyLogoUrl" alt="" />
+            }
+            else
+            {
+                <span class="header-branding-logo-fallback" aria-hidden="true">GD</span>
+            }
+        </span>
+        <span class="header-branding-copy">
+            <small>@(Model.IsCorporate ? "KURUMSAL FİRMA" : "FİRMA")</small>
+            <strong>@branding.CompanyName</strong>
+            @if (Model.IsCorporate)
+            {
+                <span class="header-branding-tagline">DAĞITIM YÖNETİM SİSTEMİ</span>
+            }
+        </span>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(branding.DistributorName))
+    {
+        <div class="header-branding-unit distributor"
+             role="group"
+             aria-label="Dağıtıcı: @branding.DistributorName">
+            <span class="header-branding-image avatar">
+                @if (!string.IsNullOrWhiteSpace(branding.DistributorProfileImageUrl))
+                {
+                    <img src="@branding.DistributorProfileImageUrl" alt="" />
+                }
+                else
+                {
+                    <span aria-hidden="true">@branding.DistributorInitials</span>
+                }
+            </span>
+            <span class="header-branding-copy">
+                <small>DAĞITICI</small>
+                <strong>@branding.DistributorName</strong>
+            </span>
+        </div>
+    }
+</div>

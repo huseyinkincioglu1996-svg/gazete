@@ -1,0 +1,238 @@
+@model GazeteDagitim.Web.Models.ViewModels.DailyCollectionsPageViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Günlük Ödeme Listesi";
+    ViewData["ParentMenu"] = $"/deliveries?date={Model.Date:yyyy-MM-dd}";
+    var tr = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/operations.css" asp-append-version="true" />
+}
+
+<main id="main-content" class="page-shell delivery-detail-page collections-detail-page">
+    <header class="page-heading">
+        <div>
+            <p class="eyebrow">TAHSİLAT DETAYI</p>
+            <h1>Günlük Ödeme Listesi</h1>
+            <p>Ödeme günü gelen abonelerin tahsilatını kaydedin; alınan ödemeler otomatik olarak listenin altına geçsin.</p>
+        </div>
+        <form asp-action="Collections"
+              method="get"
+              class="date-control"
+              data-dirty-date-form>
+            <label for="date">Ödeme tarihi</label>
+            <input id="date"
+                   name="date"
+                   type="date"
+                   value="@Model.Date.ToString("yyyy-MM-dd")" />
+            <button class="button button-secondary" type="submit">Tarihe git</button>
+        </form>
+    </header>
+
+    @if (Model.IsCashLocked)
+    {
+        <div class="feedback warning" role="status">
+            Bu tarihin kasası teslim edildi. Ödeme kayıtları yalnızca görüntülenebilir.
+        </div>
+    }
+
+    <section class="summary-grid summary-grid-three" aria-label="Günlük tahsilat özeti">
+        <article class="summary-card money-card">
+            <span>Toplam tahsilat</span>
+            <strong id="collected-total">@Model.CollectedTotal.ToString("C2", tr)</strong>
+            <small id="collected-count">
+                @Model.CollectedCount ödeme · @Model.CashSales.Count nakit satış
+            </small>
+        </article>
+        <article class="summary-card warning-card">
+            <span>Ödeme bekleyen</span>
+            <strong id="pending-payment-count">@Model.PendingCount</strong>
+            <small>abone</small>
+        </article>
+        <article class="summary-card">
+            <span>Nakit gazete satışı</span>
+            <strong>@Model.CashSaleTotal.ToString("C2", tr)</strong>
+            <small>@Model.CashSaleQuantity gazete</small>
+        </article>
+    </section>
+
+    <form id="daily-deliveries-form"
+          data-autosave-url="/deliveries/save-row"
+          data-cash-locked="@Model.IsCashLocked.ToString().ToLowerInvariant()"
+          data-cash-sale-total="@Model.CashSaleTotal.ToString(CultureInfo.InvariantCulture)"
+          data-cash-sale-count="@Model.CashSales.Count"
+          data-list-mode="collections">
+        @Html.AntiForgeryToken()
+        <input type="hidden"
+               value="@Model.Date.ToString("yyyy-MM-dd")"
+               data-delivery-date />
+
+        <section class="panel table-panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>Abone ödemeleri</h2>
+                    <p>Yalnızca ödeme günü gelen veya daha önce tahsil edilmiş kayıtlar listelenir.</p>
+                </div>
+                <span id="collection-row-count" class="count-badge">@Model.Rows.Count</span>
+            </div>
+
+            @if (Model.Rows.Count == 0)
+            {
+                <div class="empty-state">
+                    <strong>Bu tarih için alınacak abone ödemesi bulunmuyor.</strong>
+                    <span>Abonelerin ödeme periyotlarını ve varsa erteleme tarihlerini kontrol edin.</span>
+                </div>
+            }
+            else
+            {
+                <div class="responsive-table">
+                    <table class="data-table collections-detail-table">
+                        <caption class="sr-only">
+                            @Model.Date.ToString("d MMMM yyyy", tr) tarihli abone ödeme listesi
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th>Ödeme</th>
+                                <th>Tutar</th>
+                                <th>Yöntem</th>
+                                <th>Abone</th>
+                                <th>Dağıtıcı</th>
+                                <th>Kapsam</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @for (var index = 0; index < Model.Rows.Count; index++)
+                        {
+                            var row = Model.Rows[index];
+                            <tr class="delivery-row @(row.Collected ? "is-processed" : "")"
+                                data-delivery-row
+                                data-subscriber-id="@row.SubscriberId"
+                                data-original-order="@index"
+                                data-has-delivery="@row.HasDelivery.ToString().ToLowerInvariant()"
+                                data-delivered="@row.Delivered.ToString().ToLowerInvariant()"
+                                data-collected="@row.Collected.ToString().ToLowerInvariant()"
+                                data-payment-due="@row.IsPaymentDue.ToString().ToLowerInvariant()">
+                                <td data-label="Ödeme"
+                                    class="collection-action-cell"
+                                    data-payment-cell>
+                                    <button type="button"
+                                            class="tracking-toggle collection-toggle @(row.Collected ? "is-active" : "")"
+                                            aria-pressed="@row.Collected.ToString().ToLowerInvariant()"
+                                            aria-label="@row.SubscriberName için ödeme durumunu değiştir"
+                                            disabled="@Model.IsCashLocked"
+                                            data-collected-toggle>
+                                        <span class="tracking-toggle-icon" aria-hidden="true">
+                                            @(row.Collected ? "✓" : "○")
+                                        </span>
+                                        <span data-toggle-label>
+                                            @(row.Collected ? "Ödeme alındı" : "Ödeme al")
+                                        </span>
+                                    </button>
+                                </td>
+                                <td data-label="Tutar" data-payment-cell>
+                                    <div class="currency-input">
+                                        <span>₺</span>
+                                        <input type="number"
+                                               value="@row.Amount.ToString("0.00", CultureInfo.InvariantCulture)"
+                                               min="0"
+                                               step="0.01"
+                                               inputmode="decimal"
+                                               aria-label="@row.SubscriberName ödeme tutarı"
+                                               disabled="@(!row.Collected || Model.IsCashLocked)"
+                                               data-payment-field
+                                               data-amount />
+                                    </div>
+                                </td>
+                                <td data-label="Yöntem" data-payment-cell>
+                                    <select disabled="@(!row.Collected || Model.IsCashLocked)"
+                                            aria-label="@row.SubscriberName ödeme yöntemi"
+                                            data-payment-field>
+                                        @foreach (var method in new[] { "Nakit", "Kart", "Havale/EFT" })
+                                        {
+                                            <option value="@method" selected="@(method == row.PaymentMethod)">
+                                                @method
+                                            </option>
+                                        }
+                                    </select>
+                                </td>
+                                <td data-label="Abone" class="subscriber-cell">
+                                    <strong>@row.SubscriberName</strong>
+                                    <span class="row-save-status"
+                                          role="status"
+                                          aria-live="polite"
+                                          data-row-status></span>
+                                </td>
+                                <td data-label="Dağıtıcı">
+                                    <span class="tag">@row.DistributorName</span>
+                                </td>
+                                <td data-label="Kapsam">
+                                    <span class="status-tag @(row.Collected ? "success" : "pending")">
+                                        @(row.Collected ? "Tahsil edildi" : "Ödeme günü")
+                                    </span>
+                                    @if (!string.IsNullOrWhiteSpace(row.CoverageLabel))
+                                    {
+                                        <small>@row.CoverageLabel</small>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        @if (Model.Rows.Count > 0)
+        {
+            <div class="autosave-legend" role="status" aria-live="polite">
+                <span class="autosave-dot" aria-hidden="true"></span>
+                <span id="autosave-page-status">
+                    @(Model.IsCashLocked
+                        ? "Kasa teslim edildiği için ödeme listesi kilitli."
+                        : "Ödeme düğmesi, tutar ve yöntem değişiklikleri otomatik kaydedilir.")
+                </span>
+            </div>
+        }
+    </form>
+
+    <section class="panel cash-sales-detail-panel" aria-labelledby="cash-sales-detail-title">
+        <div class="panel-heading">
+            <div>
+                <h2 id="cash-sales-detail-title">Nakit gazete satışları</h2>
+                <p>Günlük tahsilat toplamına giren ekstra gazete satışları salt okunur gösterilir.</p>
+            </div>
+            <span class="count-badge">@Model.CashSales.Count</span>
+        </div>
+
+        @if (Model.CashSales.Count == 0)
+        {
+            <div class="empty-state">
+                <strong>Bu tarih için nakit gazete satışı bulunmuyor.</strong>
+                <span>Yeni satışlar Günlük Dağıtımlar ekranındaki Nakit Satış düğmesinden eklenir.</span>
+            </div>
+        }
+        else
+        {
+            <div class="collection-cash-sale-list">
+                @foreach (var sale in Model.CashSales)
+                {
+                    <article class="collection-cash-sale-item">
+                        <div>
+                            <strong>@sale.DistributorName</strong>
+                            <span>
+                                @sale.Quantity adet × @sale.UnitPrice.ToString("C2", tr)
+                                · @sale.CreatedAt.LocalDateTime.ToString("HH:mm", tr)
+                            </span>
+                        </div>
+                        <strong>@sale.Amount.ToString("C2", tr)</strong>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</main>
+
+@section Scripts {
+    <script src="~/js/deliveries.js" asp-append-version="true"></script>
+}

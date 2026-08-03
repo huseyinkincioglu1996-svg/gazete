@@ -1,0 +1,32 @@
+@model GazeteDagitim.Web.Models.ViewModels.PaymentPeriods.PaymentPeriodFormViewModel
+@{
+    ViewData["Title"] = "Ödeme Periyodunu Düzenle";
+    ViewData["ParentMenu"] = "/menu";
+}
+
+<link rel="stylesheet" href="~/css/management.css" asp-append-version="true" />
+
+<main id="main-content" class="management-page management-page-narrow">
+    <header class="management-heading">
+        <div>
+            <span class="management-eyebrow">AYARLAR</span>
+            <h1>Ödeme periyodunu düzenle</h1>
+            <p>@Model.Name periyodunun tahsilat zamanını, kapsamını ve tutarını güncelleyin.</p>
+        </div>
+    </header>
+
+    <form class="management-form"
+          asp-action="Edit"
+          asp-route-id="@Model.Id"
+          method="post"
+          novalidate>
+        @Html.AntiForgeryToken()
+        <input asp-for="Id" type="hidden" />
+        <partial name="_Form" model="Model" />
+    </form>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/payment-period-form.js" asp-append-version="true"></script>
+}

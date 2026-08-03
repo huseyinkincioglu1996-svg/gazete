@@ -1,0 +1,142 @@
+@using GazeteDagitim.Web.Models.ViewModels
+@model GazeteDagitim.Web.Models.ViewModels.Subscribers.SubscriberFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="management-validation-summary" role="alert"></div>
+
+<div class="management-form-grid">
+    <div class="management-field">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" autocomplete="name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+
+    <div class="management-field">
+        <label asp-for="Phone"></label>
+        <input asp-for="Phone" type="tel" autocomplete="tel" />
+        <span asp-validation-for="Phone"></span>
+    </div>
+
+    <div class="management-field">
+        <label asp-for="MonthlyFee"></label>
+        <div class="management-money-input">
+            <input asp-for="MonthlyFee" type="number" min="0" step="0.01" inputmode="decimal" />
+            <span>₺</span>
+        </div>
+        <span asp-validation-for="MonthlyFee"></span>
+    </div>
+
+    <div class="management-field">
+        <label asp-for="PaymentPeriodId"></label>
+        <select asp-for="PaymentPeriodId" asp-items="Model.PaymentPeriodOptions">
+            <option value="">Ödeme periyodu seçilmedi</option>
+        </select>
+        <span asp-validation-for="PaymentPeriodId"></span>
+    </div>
+
+    <div class="management-field">
+        <label asp-for="DistributorId"></label>
+        <select asp-for="DistributorId" asp-items="Model.DistributorOptions">
+            <option value="">Dağıtıcı atanmadı</option>
+        </select>
+        <span asp-validation-for="DistributorId"></span>
+    </div>
+
+    <label class="management-switch">
+        <input asp-for="IsActive" />
+        <span>
+            <strong>Aktif abone</strong>
+            <small>Pasif aboneler günlük dağıtım listesine eklenmez.</small>
+        </span>
+    </label>
+
+    <fieldset class="management-fieldset management-span-full" data-newspaper-days>
+        <legend>Gazete alınacak günler</legend>
+        <p>Abonenin gazete alacağı günleri seçin.</p>
+        <div class="management-day-grid">
+            @foreach (var option in ManagementOptions.NewspaperDays)
+            {
+                var isChecked = Model.NewspaperDays.Contains(
+                    option.Value,
+                    StringComparer.OrdinalIgnoreCase);
+                <label class="management-day-option">
+                    <input type="checkbox"
+                           name="NewspaperDays"
+                           value="@option.Value"
+                           data-newspaper-day="@option.Value"
+                           checked="@isChecked" />
+                    <span>@option.Label</span>
+                </label>
+            }
+        </div>
+        <span asp-validation-for="NewspaperDays"></span>
+    </fieldset>
+
+    <div class="management-field management-span-full">
+        <label asp-for="Address"></label>
+        <textarea asp-for="Address" rows="3" autocomplete="street-address"></textarea>
+        <span asp-validation-for="Address"></span>
+    </div>
+
+    <section class="management-location management-span-full" data-location-picker>
+        <div class="management-section-heading">
+            <div>
+                <h2>Teslimat konumu</h2>
+                <p>Mevcut konumu alın veya koordinatları elle girin.</p>
+            </div>
+            <button class="management-button management-button-secondary"
+                    type="button"
+                    data-use-location>
+                Mevcut konumu al
+            </button>
+        </div>
+
+        <div class="management-coordinate-grid">
+            <div class="management-field">
+                <label asp-for="Latitude"></label>
+                <input asp-for="Latitude"
+                       type="number"
+                       min="-90"
+                       max="90"
+                       step="any"
+                       inputmode="decimal"
+                       data-latitude />
+                <span asp-validation-for="Latitude"></span>
+            </div>
+            <div class="management-field">
+                <label asp-for="Longitude"></label>
+                <input asp-for="Longitude"
+                       type="number"
+                       min="-180"
+                       max="180"
+                       step="any"
+                       inputmode="decimal"
+                       data-longitude />
+                <span asp-validation-for="Longitude"></span>
+            </div>
+        </div>
+        <div class="management-location-actions">
+            <a class="management-map-link"
+               href="#"
+               target="_blank"
+               rel="noopener noreferrer"
+               data-map-link
+               hidden>
+                Google Maps'te konumu aç
+            </a>
+            <span class="management-location-message" data-location-message aria-live="polite"></span>
+        </div>
+    </section>
+
+    <div class="management-field management-span-full">
+        <label asp-for="Notes"></label>
+        <textarea asp-for="Notes" rows="3"></textarea>
+        <span asp-validation-for="Notes"></span>
+    </div>
+</div>
+
+<div class="management-form-actions">
+    <a class="management-button management-button-secondary" asp-action="Index">Vazgeç</a>
+    <button class="management-button management-button-primary" type="submit">
+        @(Model.Id.HasValue ? "Değişiklikleri kaydet" : "Aboneyi kaydet")
+    </button>
+</div>

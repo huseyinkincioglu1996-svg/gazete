@@ -1,0 +1,133 @@
+@using GazeteDagitim.Web.Models.ViewModels
+@model GazeteDagitim.Web.Models.ViewModels.Distributors.DistributorFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="management-validation-summary" role="alert"></div>
+
+<div class="management-form-grid">
+    <div class="management-field">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" autocomplete="name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+
+    <div class="management-field">
+        <label asp-for="Phone"></label>
+        <input asp-for="Phone" type="tel" autocomplete="tel" />
+        <span asp-validation-for="Phone"></span>
+    </div>
+
+    <div class="management-field">
+        <label asp-for="Zone"></label>
+        <select asp-for="Zone" asp-items="Model.ZoneOptions">
+            <option value="">Bölge seçin</option>
+        </select>
+        <span asp-validation-for="Zone"></span>
+    </div>
+
+    <div class="management-field">
+        <label asp-for="NewspaperPrice"></label>
+        <div class="management-money-input">
+            <input asp-for="NewspaperPrice"
+                   type="number"
+                   min="0"
+                   step="0.01"
+                   inputmode="decimal" />
+            <span>₺</span>
+        </div>
+        <small class="management-muted">
+            Dağıtıcıya yapılacak ödemelerde kullanılır. Nakit satış fiyatı Firma Ayarları’ndan alınır.
+        </small>
+        <span asp-validation-for="NewspaperPrice"></span>
+    </div>
+
+    <div class="management-field management-span-full">
+        <label asp-for="Address"></label>
+        <textarea asp-for="Address" rows="3" autocomplete="street-address"></textarea>
+        <span asp-validation-for="Address"></span>
+    </div>
+
+    <fieldset class="management-fieldset management-span-full">
+        <legend>Dağıtım günleri</legend>
+        <p>Dağıtıcının sahada çalışacağı günleri seçin.</p>
+        <div class="management-day-grid">
+            @foreach (var option in ManagementOptions.BusinessDays)
+            {
+                var isChecked = Model.DistributionDays.Contains(
+                    option.Value,
+                    StringComparer.OrdinalIgnoreCase);
+                <label class="management-day-option">
+                    <input type="checkbox"
+                           name="DistributionDays"
+                           value="@option.Value"
+                           checked="@isChecked" />
+                    <span>@option.Label</span>
+                </label>
+            }
+        </div>
+        <span asp-validation-for="DistributionDays"></span>
+    </fieldset>
+
+    <section class="management-payment-plan management-span-full" data-payment-plan>
+        <div class="management-field">
+            <label asp-for="PaymentType"></label>
+            <select asp-for="PaymentType" data-payment-type>
+                @foreach (var option in ManagementOptions.PaymentTypes)
+                {
+                    <option value="@option.Value">@option.Label</option>
+                }
+            </select>
+            <span asp-validation-for="PaymentType"></span>
+        </div>
+
+        <fieldset class="management-fieldset" data-payment-section="Weekly">
+            <legend>Haftalık ödeme günleri</legend>
+            <p>Dağıtıcının ödeme yapacağı hafta günlerini seçin.</p>
+            <div class="management-day-grid">
+                @foreach (var option in ManagementOptions.BusinessDays)
+                {
+                    var isChecked = Model.WeeklyPaymentDays.Contains(
+                        option.Value,
+                        StringComparer.OrdinalIgnoreCase);
+                    <label class="management-day-option">
+                        <input type="checkbox"
+                               name="WeeklyPaymentDays"
+                               value="@option.Value"
+                               checked="@isChecked" />
+                        <span>@option.Label</span>
+                    </label>
+                }
+            </div>
+            <span asp-validation-for="WeeklyPaymentDays"></span>
+        </fieldset>
+
+        <fieldset class="management-fieldset" data-payment-section="Monthly">
+            <legend>Aylık ödeme günleri</legend>
+            <p>Ayın ödeme yapılacak günlerini seçin.</p>
+            <div class="management-month-grid">
+                @for (var day = 1; day <= 31; day++)
+                {
+                    var isChecked = Model.MonthlyPaymentDays.Contains(day);
+                    <label class="management-day-option compact">
+                        <input type="checkbox"
+                               name="MonthlyPaymentDays"
+                               value="@day"
+                               checked="@isChecked" />
+                        <span>@day</span>
+                    </label>
+                }
+            </div>
+            <span asp-validation-for="MonthlyPaymentDays"></span>
+        </fieldset>
+
+        <p class="management-payment-note" data-payment-section="Daily">
+            Günlük ödeme tipinde ayrıca bir gün seçmeniz gerekmez.
+        </p>
+    </section>
+</div>
+
+<div class="management-form-actions">
+    <a class="management-button management-button-secondary" asp-action="Index">Vazgeç</a>
+    <button class="management-button management-button-primary" type="submit">
+        @(Model.Id.HasValue ? "Değişiklikleri kaydet" : "Dağıtıcıyı kaydet")
+    </button>
+</div>

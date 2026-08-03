@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import BackIcon from '../components/BackIcon';
 import HeaderBranding from '../components/HeaderBranding';
 import './MenuPage.css';
 
@@ -10,16 +9,13 @@ function CompanyMenuPage() {
       <div className="menu-page-inner">
         <header className="menu-identity company-menu-identity">
           <div className="company-menu-heading">
-            <Link className="menu-back-link" to="/menu" aria-label="Ana menüye dön">
-              <BackIcon className="back-icon" />
-            </Link>
             <span className="menu-identity-icon" aria-hidden="true">🏢</span>
             <div>
               <p>GAZETE FİRMASI</p>
               <h1>FİRMA MENÜSÜ</h1>
             </div>
           </div>
-          <HeaderBranding />
+          <HeaderBranding variant="corporate" />
         </header>
 
         <nav className="menu-tile-grid company-menu-grid" aria-label="Gazete firması menüsü">

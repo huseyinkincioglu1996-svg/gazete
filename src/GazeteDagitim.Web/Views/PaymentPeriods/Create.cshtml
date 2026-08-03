@@ -1,0 +1,27 @@
+@model GazeteDagitim.Web.Models.ViewModels.PaymentPeriods.PaymentPeriodFormViewModel
+@{
+    ViewData["Title"] = "Yeni Ödeme Periyodu";
+    ViewData["ParentMenu"] = "/menu";
+}
+
+<link rel="stylesheet" href="~/css/management.css" asp-append-version="true" />
+
+<main id="main-content" class="management-page management-page-narrow">
+    <header class="management-heading">
+        <div>
+            <span class="management-eyebrow">AYARLAR</span>
+            <h1>Yeni ödeme periyodu</h1>
+            <p>Ödemenin hangi gün ve saatte alınacağını, kaç günü kapsadığını ve tutarını tanımlayın.</p>
+        </div>
+    </header>
+
+    <form class="management-form" asp-action="Create" method="post" novalidate>
+        @Html.AntiForgeryToken()
+        <partial name="_Form" model="Model" />
+    </form>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/payment-period-form.js" asp-append-version="true"></script>
+}

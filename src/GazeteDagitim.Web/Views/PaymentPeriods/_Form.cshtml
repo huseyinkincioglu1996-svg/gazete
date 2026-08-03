@@ -1,0 +1,99 @@
+@model GazeteDagitim.Web.Models.ViewModels.PaymentPeriods.PaymentPeriodFormViewModel
+@using GazeteDagitim.Web.Models.ViewModels.PaymentPeriods
+
+<div asp-validation-summary="ModelOnly" class="management-validation-summary" role="alert"></div>
+
+<div class="management-form-grid">
+    <div class="management-field management-span-full">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" autocomplete="off" />
+        <span asp-validation-for="Name"></span>
+    </div>
+
+    <div class="management-field management-span-full">
+        <label asp-for="ScheduleType"></label>
+        <select asp-for="ScheduleType">
+            <option value="@PaymentPeriodScheduleTypes.Monthly">Aylık / dönemsel</option>
+            <option value="@PaymentPeriodScheduleTypes.Daily">Günlük</option>
+        </select>
+        <small>
+            Günlük seçildiğinde abonenin ödeme vadesi her takvim günü oluşur.
+        </small>
+        <span asp-validation-for="ScheduleType"></span>
+    </div>
+
+    <div class="management-field" data-monthly-schedule-field>
+        <label asp-for="CollectionDayOfMonth"></label>
+        <input asp-for="CollectionDayOfMonth"
+               type="number"
+               min="1"
+               max="31"
+               inputmode="numeric" />
+        <small data-collection-day-hint
+               data-default-text="Ayın kaçıncı günü ödeme alınacağını belirler. Kısa aylarda ayın son günü kullanılır.">
+            Ayın kaçıncı günü ödeme alınacağını belirler. Kısa aylarda ayın son günü kullanılır.
+        </small>
+        <span asp-validation-for="CollectionDayOfMonth"></span>
+    </div>
+
+    <div class="management-field">
+        <label asp-for="CollectionTime"></label>
+        <input asp-for="CollectionTime"
+               type="time" />
+        <small>Tahsilatın planlandığı saati belirler.</small>
+        <span asp-validation-for="CollectionTime"></span>
+    </div>
+
+    <div class="management-field" data-monthly-schedule-field>
+        <label asp-for="DayCount"></label>
+        <input asp-for="DayCount" type="number" min="1" max="365" inputmode="numeric" />
+        <small>
+            10 gün seçildiğinde ay; 1–10, 11–20 ve 21–ayın sonu olarak otomatik bölünür.
+        </small>
+        <span asp-validation-for="DayCount"></span>
+    </div>
+
+    <div class="management-field">
+        <label asp-for="CollectionAmount"></label>
+        <div class="management-money-input">
+            <input asp-for="CollectionAmount"
+                   type="number"
+                   min="0.01"
+                   step="0.01"
+                   inputmode="decimal" />
+            <span>₺</span>
+        </div>
+        <small data-collection-amount-hint
+               data-default-text="10 günlük planda bu değer 10 günlük temel tutardır; son ay dilimi gün sayısına göre oranlanır.">
+            10 günlük planda bu değer 10 günlük temel tutardır; son ay dilimi gün sayısına göre oranlanır.
+        </small>
+        <span asp-validation-for="CollectionAmount"></span>
+    </div>
+
+    <div class="management-feedback success management-span-full"
+         data-daily-schedule-note
+         hidden>
+        Günlük periyotta ödeme her takvim günü vadesine düşer ve her ödeme 1 günü kapsar.
+    </div>
+
+    <div class="management-field management-span-full">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" rows="4"></textarea>
+        <span asp-validation-for="Description"></span>
+    </div>
+
+    <label class="management-switch management-span-full">
+        <input asp-for="IsActive" />
+        <span>
+            <strong>Aktif ödeme periyodu</strong>
+            <small>Pasif periyotlar yeni abone kayıtlarında gösterilmez.</small>
+        </span>
+    </label>
+</div>
+
+<div class="management-form-actions">
+    <a class="management-button management-button-secondary" asp-action="Index">Vazgeç</a>
+    <button class="management-button management-button-primary" type="submit">
+        @(Model.Id.HasValue ? "Değişiklikleri kaydet" : "Periyodu kaydet")
+    </button>
+</div>

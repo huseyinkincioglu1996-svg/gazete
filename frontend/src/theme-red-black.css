@@ -48,22 +48,6 @@ textarea:focus-visible {
   overflow-x: clip;
 }
 
-#root .feature-toolbar {
-  border-bottom-color: rgb(196 0 70 / 55%);
-  background:
-    linear-gradient(90deg, #050506 0%, #17050b 50%, #050506 100%);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 42%);
-}
-
-#root .feature-menu-link {
-  border: 1px solid rgb(255 255 255 / 12%);
-  background: var(--rb-red);
-}
-
-#root .feature-menu-link:hover {
-  background: var(--rb-red-hover);
-}
-
 #root .footer {
   border-top: 1px solid var(--rb-border);
   background: #08080a;
@@ -83,6 +67,18 @@ textarea:focus-visible {
 #root .header-branding-image {
   border-color: rgb(255 255 255 / 18%);
   background: var(--rb-surface-3);
+}
+
+#root .header-branding--corporate .header-branding-unit.company {
+  border-color: rgb(255 255 255 / 24%);
+  background:
+    linear-gradient(135deg, rgb(5 5 6 / 88%), rgb(24 24 28 / 78%));
+}
+
+#root .header-branding--corporate .header-branding-image.logo {
+  border-color: rgb(255 255 255 / 20%);
+  background:
+    linear-gradient(145deg, #27272c 0%, #09090b 100%);
 }
 
 /* Tam ekran menüler */
@@ -129,11 +125,6 @@ textarea:focus-visible {
 
 #root .menu-tile-featured small {
   color: rgb(255 255 255 / 76%);
-}
-
-#root .menu-back-link {
-  border-color: rgb(255 255 255 / 28%);
-  background: rgb(0 0 0 / 34%);
 }
 
 /* Ortak metin, yüzey ve form alanları */

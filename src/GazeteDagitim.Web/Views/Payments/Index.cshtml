@@ -1,0 +1,166 @@
+@model GazeteDagitim.Web.Models.ViewModels.PaymentsPageViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Dağıtıcı Ödeme Takibi";
+    ViewData["ParentMenu"] = "/menu";
+    var tr = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/operations.css" asp-append-version="true" />
+}
+
+<main id="main-content" class="page-shell">
+    <header class="page-heading">
+        <div>
+            <p class="eyebrow">DAĞITICIYA ÖZEL</p>
+            <h1>Ödeme Takibi</h1>
+            <p>Dağıtıcının tahsil ettiği nakitler otomatik listelenir; firma ödemeleri ayrı izlenir.</p>
+        </div>
+        <form method="get" class="filter-bar">
+            <label>
+                Ay
+                <input type="month" name="month" value="@Model.Month" />
+            </label>
+            <label>
+                Dağıtıcı
+                <select name="distributorId">
+                    <option value="">Tüm dağıtıcılar</option>
+                    @foreach (var distributor in Model.Distributors)
+                    {
+                        <option value="@distributor.Id" selected="@(Model.DistributorId == distributor.Id)">
+                            @distributor.Name@(!distributor.IsActive ? " (Pasif)" : "")
+                        </option>
+                    }
+                </select>
+            </label>
+            <button class="button button-secondary" type="submit">Göster</button>
+        </form>
+    </header>
+
+    @if (TempData["Notice"] is string notice)
+    {
+        <div class="feedback success" role="status">@notice</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="feedback error" role="alert">@error</div>
+    }
+
+    <section class="summary-grid summary-grid-four">
+        <article class="summary-card money-card">
+            <span>Tahsil ettiği nakit</span>
+            <strong>@Model.CashCollectedTotal.ToString("C2", tr)</strong>
+            <small>@Model.CashCollections.Count tahsilat</small>
+        </article>
+        <article class="summary-card">
+            <span>Dağıtıcı ödeme toplamı</span>
+            <strong>@Model.PaymentTotal.ToString("C2", tr)</strong>
+            <small>Firma yükümlülüğü</small>
+        </article>
+        <article class="summary-card success-card">
+            <span>Ödenen</span>
+            <strong>@Model.PaidTotal.ToString("C2", tr)</strong>
+            <small>Tamamlanan ödeme</small>
+        </article>
+        <article class="summary-card warning-card">
+            <span>Bekleyen</span>
+            <strong>@Model.PendingTotal.ToString("C2", tr)</strong>
+            <small>Ödeme bekliyor</small>
+        </article>
+    </section>
+
+    <section class="panel table-panel">
+        <div class="panel-heading">
+            <div>
+                <h2>Otomatik nakit tahsilatları</h2>
+                <p>Günlük dağıtım ekranındaki nakit abone ödemeleri ve ekstra gazete satışları.</p>
+            </div>
+            <span class="count-badge">@Model.CashCollections.Count</span>
+        </div>
+        @if (Model.CashCollections.Count == 0)
+        {
+            <p class="empty-state">Seçilen ay ve dağıtıcı için nakit tahsilat yok.</p>
+        }
+        else
+        {
+            <div class="responsive-table">
+                <table class="data-table">
+                    <thead><tr><th>Tahsilat kaynağı</th><th>Dağıtıcı</th><th>Tarih</th><th>Tutar</th><th>Yöntem</th><th>Durum</th></tr></thead>
+                    <tbody>
+                    @foreach (var item in Model.CashCollections)
+                    {
+                        <tr>
+                            <td data-label="Kaynak">
+                                <strong>@item.SubscriberName</strong>
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <small>@item.Description</small>
+                                }
+                            </td>
+                            <td data-label="Dağıtıcı">@item.DistributorName</td>
+                            <td data-label="Tarih">@item.Date.ToString("d MMM yyyy", tr)</td>
+                            <td data-label="Tutar">@item.Amount.ToString("C2", tr)</td>
+                            <td data-label="Yöntem">@item.PaymentMethod</td>
+                            <td data-label="Durum"><span class="status-tag success">Tahsil Edildi</span></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="panel table-panel">
+        <div class="panel-heading">
+            <div>
+                <h2>Dağıtıcı ödemeleri</h2>
+                <p>Teslim edilen gazetelerden ödeme planına göre oluşan kayıtlar.</p>
+            </div>
+            <span class="count-badge">@Model.Payments.Count</span>
+        </div>
+        @if (Model.Payments.Count == 0)
+        {
+            <p class="empty-state">Seçilen ay için ödeme kaydı yok.</p>
+        }
+        else
+        {
+            <div class="responsive-table">
+                <table class="data-table">
+                    <thead><tr><th>Dağıtıcı</th><th>Tutar</th><th>Dönem</th><th>Tür</th><th>Durum</th><th>İşlem</th></tr></thead>
+                    <tbody>
+                    @foreach (var payment in Model.Payments)
+                    {
+                        <tr>
+                            <td data-label="Dağıtıcı"><strong>@payment.DistributorName</strong></td>
+                            <td data-label="Tutar">@payment.Amount.ToString("C2", tr)</td>
+                            <td data-label="Dönem">@payment.PeriodStart.ToString("d MMM", tr) – @payment.PeriodEnd.ToString("d MMM yyyy", tr)</td>
+                            <td data-label="Tür">@payment.PaymentType</td>
+                            <td data-label="Durum">
+                                <span class="status-tag @(payment.IsPaid ? "success" : "pending")">
+                                    @(payment.IsPaid ? "Ödendi" : "Beklemede")
+                                </span>
+                            </td>
+                            <td data-label="İşlem">
+                                @if (!payment.IsPaid)
+                                {
+                                    <form asp-action="MarkPaid" method="post" data-confirm="Bu ödeme tamamlandı olarak işaretlensin mi?">
+                                        <input type="hidden" name="id" value="@payment.Id" />
+                                        <input type="hidden" name="month" value="@Model.Month" />
+                                        <input type="hidden" name="distributorId" value="@Model.DistributorId" />
+                                        <button class="button button-small button-primary" type="submit">Ödendi yap</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="muted">Tamamlandı</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</main>

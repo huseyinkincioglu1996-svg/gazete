@@ -1,0 +1,85 @@
+.edge-swipe-indicator {
+  --edge-swipe-progress: 0;
+
+  position: fixed;
+  z-index: 120;
+  top: 50%;
+  left: 0;
+  display: flex;
+  width: 62px;
+  min-height: 70px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-left: 0;
+  border-radius: 0 16px 16px 0;
+  padding: 8px 7px 7px 4px;
+  opacity: var(--edge-swipe-progress);
+  background:
+    linear-gradient(135deg, #a9003b 0%, #710029 100%);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 38%);
+  color: #fff;
+  pointer-events: none;
+  transform:
+    translate3d(
+      calc(-66px + (var(--edge-swipe-progress) * 70px)),
+      -50%,
+      0
+    );
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.edge-swipe-indicator.ready {
+  border-color: rgb(255 255 255 / 34%);
+  background:
+    linear-gradient(135deg, #d4004d 0%, #8d0032 100%);
+  box-shadow:
+    0 14px 32px rgb(0 0 0 / 44%),
+    0 0 0 4px rgb(251 63 121 / 16%);
+}
+
+.edge-swipe-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.edge-swipe-indicator span {
+  font-size: 0.56rem;
+  font-weight: 950;
+  letter-spacing: 0.09em;
+}
+
+body.edge-swipe-active {
+  cursor: grabbing;
+  user-select: none;
+}
+
+@media (max-width: 700px) {
+  .edge-swipe-indicator {
+    width: 56px;
+    min-height: 64px;
+    border-radius: 0 14px 14px 0;
+    transform:
+      translate3d(
+        calc(-60px + (var(--edge-swipe-progress) * 64px)),
+        -50%,
+        0
+      );
+  }
+
+  .edge-swipe-icon {
+    width: 27px;
+    height: 27px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge-swipe-indicator {
+    transition: none;
+  }
+}

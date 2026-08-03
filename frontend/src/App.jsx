@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import {
   BrowserRouter as Router,
-  Link,
   Navigate,
   Outlet,
   Route,
@@ -18,8 +17,7 @@ import Settings from './pages/Settings';
 import MenuPage from './pages/MenuPage';
 import CompanyMenuPage from './pages/CompanyMenuPage';
 import CompanySettings from './pages/CompanySettings';
-import BackIcon from './components/BackIcon';
-import HeaderBranding from './components/HeaderBranding';
+import EdgeSwipeBack from './components/EdgeSwipeBack';
 import { BrandingProvider } from './BrandingContext';
 import './App.css';
 import './theme-red-black.css';
@@ -35,20 +33,9 @@ function ScrollToTop() {
 }
 
 function FeatureLayout() {
-  const { pathname } = useLocation();
-  const isCompanySection = pathname.startsWith('/menu/company/');
-  const backTarget = isCompanySection ? '/menu/company' : '/menu';
-  const backLabel = isCompanySection ? 'Firma menüsüne dön' : 'Ana menüye dön';
-
   return (
     <div className="feature-shell">
       <a className="skip-link" href="#main-content">Ana içeriğe geç</a>
-      <header className="feature-toolbar">
-        <Link className="feature-menu-link" to={backTarget} aria-label={backLabel}>
-          <BackIcon className="back-icon" />
-        </Link>
-        <HeaderBranding />
-      </header>
 
       <div className="main-wrapper">
         <main id="main-content" className="main-content" tabIndex="-1">
@@ -67,6 +54,7 @@ function App() {
     <Router>
       <BrandingProvider>
         <ScrollToTop />
+        <EdgeSwipeBack />
         <Routes>
           <Route path="/" element={<Navigate to="/menu" replace />} />
           <Route path="/menu" element={<MenuPage />} />

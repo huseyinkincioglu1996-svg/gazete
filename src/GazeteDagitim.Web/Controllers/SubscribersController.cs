@@ -66,7 +66,10 @@ public sealed class SubscribersController(
     [HttpGet("create")]
     public async Task<IActionResult> Create(CancellationToken cancellationToken)
     {
-        var model = new SubscriberFormViewModel();
+        var model = new SubscriberFormViewModel
+        {
+            FirstDeliveryDate = businessClock.Today
+        };
         await PopulateOptionsAsync(model, cancellationToken);
         return View(model);
     }
@@ -95,9 +98,10 @@ public sealed class SubscribersController(
             Notes = model.Notes?.Trim() ?? string.Empty,
             IsActive = model.IsActive,
             DeactivatedAt = model.IsActive ? null : businessClock.UtcNow,
+            FirstDeliveryDate = model.FirstDeliveryDate!.Value,
             PaymentPeriodId = model.PaymentPeriodId,
             PaymentPeriodStartedOn = model.PaymentPeriodId.HasValue
-                ? businessClock.Today
+                ? model.FirstDeliveryDate.Value
                 : null,
             DistributorId = model.DistributorId,
             Latitude = model.Latitude,
@@ -142,6 +146,7 @@ public sealed class SubscribersController(
             MonthlyFee = subscriber.MonthlyFee,
             Notes = subscriber.Notes,
             IsActive = subscriber.IsActive,
+            FirstDeliveryDate = subscriber.FirstDeliveryDate,
             PaymentPeriodId = subscriber.PaymentPeriodId,
             DistributorId = subscriber.DistributorId,
             Latitude = subscriber.Latitude,
@@ -193,12 +198,10 @@ public sealed class SubscribersController(
         subscriber.MonthlyFee = model.MonthlyFee;
         subscriber.Notes = model.Notes?.Trim() ?? string.Empty;
         SynchronizeActivationState(subscriber, model.IsActive);
-        if (subscriber.PaymentPeriodId != model.PaymentPeriodId)
-        {
-            subscriber.PaymentPeriodStartedOn = model.PaymentPeriodId.HasValue
-                ? businessClock.Today
-                : null;
-        }
+        subscriber.FirstDeliveryDate = model.FirstDeliveryDate!.Value;
+        subscriber.PaymentPeriodStartedOn = model.PaymentPeriodId.HasValue
+            ? model.FirstDeliveryDate.Value
+            : null;
         subscriber.PaymentPeriodId = model.PaymentPeriodId;
         subscriber.DistributorId = model.DistributorId;
         subscriber.Latitude = model.Latitude;

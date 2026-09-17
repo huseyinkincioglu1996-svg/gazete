@@ -418,6 +418,8 @@ public sealed class SubscriberPaymentDetailsService(
             DomainRules.RoundCurrency(period.CollectionAmount!.Value),
             SubscriberPaymentScheduleRules.IsDailyPlan(period)
                 ? $"Her gün · {collectionTime:HH\\:mm}"
+                : SubscriberPaymentScheduleRules.IsWeeklyPlan(period)
+                    ? $"Başlangıçtan itibaren her 7 günde bir · {collectionTime:HH\\:mm}"
                 : period.DayCount == 10
                     ? $"Ayın 10., 20. ve son günü · {collectionTime:HH\\:mm}"
                     : $"Her ayın {collectionDay}. günü · {collectionTime:HH\\:mm}");

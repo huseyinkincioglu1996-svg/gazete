@@ -202,6 +202,8 @@ public sealed class DailyPaymentScheduleEndpointTests
     public async Task SubscriberCreateAndEdit_SynchronizePaymentPeriodStartDate()
     {
         var today = new DateOnly(2026, 8, 2);
+        var firstDeliveryDate = today.AddDays(-30);
+        var editedFirstDeliveryDate = today.AddDays(-45);
         await using var sourceFactory = new GazeteWebFactory();
         await using var factory = sourceFactory.WithWebHostBuilder(builder =>
         {
@@ -236,6 +238,7 @@ public sealed class DailyPaymentScheduleEndpointTests
                 ("Name", "Başlangıç Tarihli Abone"),
                 ("MonthlyFee", "517.50"),
                 ("IsActive", "true"),
+                ("FirstDeliveryDate", firstDeliveryDate.ToString("yyyy-MM-dd")),
                 ("PaymentPeriodId", firstPeriodId.ToString())));
 
         Assert.Equal(HttpStatusCode.Redirect, createResponse.StatusCode);
@@ -245,10 +248,9 @@ public sealed class DailyPaymentScheduleEndpointTests
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var subscriber = await dbContext.Subscribers.SingleAsync();
             Assert.Equal(firstPeriodId, subscriber.PaymentPeriodId);
-            Assert.Equal(today, subscriber.PaymentPeriodStartedOn);
+            Assert.Equal(firstDeliveryDate, subscriber.FirstDeliveryDate);
+            Assert.Equal(firstDeliveryDate, subscriber.PaymentPeriodStartedOn);
             subscriberId = subscriber.Id;
-            subscriber.PaymentPeriodStartedOn = today.AddDays(-10);
-            await dbContext.SaveChangesAsync();
         }
 
         antiforgeryToken = await GetAntiforgeryTokenAsync(
@@ -262,6 +264,7 @@ public sealed class DailyPaymentScheduleEndpointTests
                 ("Name", "Başlangıç Tarihli Abone"),
                 ("MonthlyFee", "517.50"),
                 ("IsActive", "true"),
+                ("FirstDeliveryDate", editedFirstDeliveryDate.ToString("yyyy-MM-dd")),
                 ("PaymentPeriodId", secondPeriodId.ToString())));
 
         Assert.Equal(HttpStatusCode.Redirect, changeResponse.StatusCode);
@@ -272,7 +275,8 @@ public sealed class DailyPaymentScheduleEndpointTests
                 .AsNoTracking()
                 .SingleAsync();
             Assert.Equal(secondPeriodId, subscriber.PaymentPeriodId);
-            Assert.Equal(today, subscriber.PaymentPeriodStartedOn);
+            Assert.Equal(editedFirstDeliveryDate, subscriber.FirstDeliveryDate);
+            Assert.Equal(editedFirstDeliveryDate, subscriber.PaymentPeriodStartedOn);
         }
 
         antiforgeryToken = await GetAntiforgeryTokenAsync(
@@ -286,6 +290,7 @@ public sealed class DailyPaymentScheduleEndpointTests
                 ("Name", "Başlangıç Tarihli Abone"),
                 ("MonthlyFee", "517.50"),
                 ("IsActive", "true"),
+                ("FirstDeliveryDate", editedFirstDeliveryDate.ToString("yyyy-MM-dd")),
                 ("PaymentPeriodId", string.Empty)));
 
         Assert.Equal(HttpStatusCode.Redirect, clearResponse.StatusCode);
@@ -297,6 +302,7 @@ public sealed class DailyPaymentScheduleEndpointTests
                 .SingleAsync();
             Assert.Null(subscriber.PaymentPeriodId);
             Assert.Null(subscriber.PaymentPeriodStartedOn);
+            Assert.Equal(editedFirstDeliveryDate, subscriber.FirstDeliveryDate);
         }
     }
 

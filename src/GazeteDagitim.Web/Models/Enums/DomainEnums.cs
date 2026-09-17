@@ -80,7 +80,10 @@ public enum PaymentPeriodFrequency
     Monthly = 0,
 
     [Display(Name = "Günlük")]
-    Daily = 1
+    Daily = 1,
+
+    [Display(Name = "Haftalık")]
+    Weekly = 2
 }
 
 public enum DeliveryStatus

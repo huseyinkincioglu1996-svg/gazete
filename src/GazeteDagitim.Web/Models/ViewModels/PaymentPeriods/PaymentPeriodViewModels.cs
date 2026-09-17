@@ -9,6 +9,7 @@ public static class PaymentPeriodScheduleTypes
 {
     public const string Monthly = "monthly";
     public const string Daily = "daily";
+    public const string Weekly = "weekly";
 }
 
 public sealed class PaymentPeriodIndexViewModel
@@ -29,6 +30,7 @@ public sealed class PaymentPeriodListItemViewModel
     public bool IsActive { get; init; }
     public PaymentPeriodFrequency Frequency { get; init; }
     public bool IsDaily => Frequency == PaymentPeriodFrequency.Daily;
+    public bool IsWeekly => Frequency == PaymentPeriodFrequency.Weekly;
 }
 
 public sealed class PaymentPeriodFormViewModel : IValidatableObject
@@ -42,7 +44,7 @@ public sealed class PaymentPeriodFormViewModel : IValidatableObject
 
     [Required(ErrorMessage = "Tahsilat sıklığı zorunludur.")]
     [RegularExpression(
-        "^(monthly|daily)$",
+        "^(monthly|daily|weekly)$",
         ErrorMessage = "Tahsilat sıklığı geçersizdir.")]
     [Display(Name = "Tahsilat sıklığı")]
     public string ScheduleType { get; set; } = PaymentPeriodScheduleTypes.Monthly;

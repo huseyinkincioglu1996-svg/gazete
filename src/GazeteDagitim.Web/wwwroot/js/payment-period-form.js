@@ -7,6 +7,7 @@
   const hint = document.querySelector("[data-collection-day-hint]");
   const amountHint = document.querySelector("[data-collection-amount-hint]");
   const dailyNote = document.querySelector("[data-daily-schedule-note]");
+  const weeklyNote = document.querySelector("[data-weekly-schedule-note]");
   const monthlyFields = document.querySelectorAll(
     "[data-monthly-schedule-field]",
   );
@@ -16,14 +17,18 @@
     !collectionDay ||
     !hint ||
     !amountHint ||
-    !dailyNote
+    !dailyNote ||
+    !weeklyNote
   ) return;
 
   const defaultHint = hint.dataset.defaultText || hint.textContent.trim();
   const defaultAmountHint =
     amountHint.dataset.defaultText || amountHint.textContent.trim();
-  let monthlyDayCount = dayCount.value === "1" ? "30" : dayCount.value;
-  let monthlyCollectionDay = collectionDay.value || "1";
+  const startsMonthly = scheduleType.value === "monthly";
+  let monthlyDayCount = startsMonthly ? dayCount.value || "30" : "30";
+  let monthlyCollectionDay = startsMonthly
+    ? collectionDay.value || "1"
+    : "1";
 
   const syncTenDaySchedule = () => {
     const isTenDaySchedule = Number.parseInt(dayCount.value, 10) === 10;
@@ -40,24 +45,23 @@
 
   const syncScheduleType = () => {
     const isDaily = scheduleType.value === "daily";
+    const isWeekly = scheduleType.value === "weekly";
+    const isFixedInterval = isDaily || isWeekly;
     monthlyFields.forEach((field) => {
-      field.hidden = isDaily;
+      field.hidden = isFixedInterval;
     });
     dailyNote.hidden = !isDaily;
+    weeklyNote.hidden = !isWeekly;
 
-    if (isDaily) {
-      if (dayCount.value !== "1") {
-        monthlyDayCount = dayCount.value;
-      }
-      if (collectionDay.value) {
-        monthlyCollectionDay = collectionDay.value;
-      }
-      dayCount.value = "1";
+    if (isFixedInterval) {
+      dayCount.value = isWeekly ? "7" : "1";
       collectionDay.value = "1";
       dayCount.readOnly = true;
       collectionDay.readOnly = true;
       amountHint.textContent =
-        "Bu tutar her takvim günü için ayrı tahsilat tutarıdır.";
+        isWeekly
+          ? "Bu tutar her 7 günlük dönem için tahsil edilecek tutardır."
+          : "Bu tutar her takvim günü için ayrı tahsilat tutarıdır.";
       return;
     }
 
@@ -74,14 +78,18 @@
 
   scheduleType.addEventListener("change", syncScheduleType);
   dayCount.addEventListener("input", () => {
-    if (scheduleType.value !== "daily") {
+    if (scheduleType.value === "monthly") {
       monthlyDayCount = dayCount.value;
       syncTenDaySchedule();
     }
   });
-  dayCount.addEventListener("change", syncTenDaySchedule);
+  dayCount.addEventListener("change", () => {
+    if (scheduleType.value === "monthly") {
+      syncTenDaySchedule();
+    }
+  });
   collectionDay.addEventListener("input", () => {
-    if (scheduleType.value !== "daily" && collectionDay.value) {
+    if (scheduleType.value === "monthly" && collectionDay.value) {
       monthlyCollectionDay = collectionDay.value;
     }
   });

@@ -685,6 +685,7 @@ END;
 
 COMMIT;
 GO
+
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'20260731091425_AddNewspaperCashSales'
@@ -792,5 +793,91 @@ BEGIN
     VALUES (N'20260803115523_AddDeliveryColumnVisibilitySetting', N'9.0.18');
 END;
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260917072555_AddWeeklyPaymentPeriodFrequency'
+)
+BEGIN
+    ALTER TABLE [PaymentPeriods] DROP CONSTRAINT [CK_PaymentPeriods_DailyDayCount];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260917072555_AddWeeklyPaymentPeriodFrequency'
+)
+BEGIN
+    ALTER TABLE [PaymentPeriods] DROP CONSTRAINT [CK_PaymentPeriods_Frequency];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260917072555_AddWeeklyPaymentPeriodFrequency'
+)
+BEGIN
+    EXEC(N'ALTER TABLE [PaymentPeriods] ADD CONSTRAINT [CK_PaymentPeriods_Frequency] CHECK ([Frequency] IN (0, 1, 2))');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260917072555_AddWeeklyPaymentPeriodFrequency'
+)
+BEGIN
+    EXEC(N'ALTER TABLE [PaymentPeriods] ADD CONSTRAINT [CK_PaymentPeriods_FrequencyDayCount] CHECK (([Frequency] <> 1 OR [DayCount] = 1) AND ([Frequency] <> 2 OR [DayCount] = 7))');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260917072555_AddWeeklyPaymentPeriodFrequency'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260917072555_AddWeeklyPaymentPeriodFrequency', N'9.0.18');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260917080021_AddSubscriberFirstDeliveryDate'
+)
+BEGIN
+    ALTER TABLE [Subscribers] ADD [FirstDeliveryDate] date NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260917080021_AddSubscriberFirstDeliveryDate'
+)
+BEGIN
+    UPDATE [Subscribers]
+    SET [FirstDeliveryDate] = COALESCE(
+        [PaymentPeriodStartedOn],
+        CONVERT(date, SWITCHOFFSET([CreatedAt], '+03:00')))
+    WHERE [FirstDeliveryDate] IS NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260917080021_AddSubscriberFirstDeliveryDate'
+)
+BEGIN
+    DECLARE @var sysname;
+    SELECT @var = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Subscribers]') AND [c].[name] = N'FirstDeliveryDate');
+    IF @var IS NOT NULL EXEC(N'ALTER TABLE [Subscribers] DROP CONSTRAINT [' + @var + '];');
+    ALTER TABLE [Subscribers] ALTER COLUMN [FirstDeliveryDate] date NOT NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260917080021_AddSubscriberFirstDeliveryDate'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260917080021_AddSubscriberFirstDeliveryDate', N'9.0.18');
+END;
+
 COMMIT;
 GO
+
+-- Gazete Dağıtım migration script sonu.

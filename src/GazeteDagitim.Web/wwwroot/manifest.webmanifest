@@ -1,0 +1,61 @@
+{
+  "id": "/",
+  "name": "Gazete Dağıtım ve Ödeme Takip",
+  "short_name": "Gazete",
+  "description": "Gazete dağıtımı, abone ödemeleri ve kasa teslimi takip uygulaması.",
+  "lang": "tr",
+  "dir": "ltr",
+  "start_url": "/menu",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050506",
+  "theme_color": "#a9003b",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Günlük Dağıtımlar",
+      "short_name": "Dağıtımlar",
+      "url": "/deliveries",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Aboneler",
+      "short_name": "Aboneler",
+      "url": "/subscribers",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}

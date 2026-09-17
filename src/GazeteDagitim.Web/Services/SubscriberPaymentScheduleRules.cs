@@ -22,6 +22,7 @@ internal sealed record SubscriberDailyPaymentDue(
 internal static class SubscriberPaymentScheduleRules
 {
     private const int DailyPeriod = 1;
+    private const int WeeklyPeriod = 7;
     private const int TenDayPeriod = 10;
     private static readonly TimeZoneInfo BusinessTimeZone = ResolveBusinessTimeZone();
 
@@ -32,7 +33,9 @@ internal static class SubscriberPaymentScheduleRules
         period.DayCount is >= 1 and <= 365 &&
         Enum.IsDefined(period.Frequency) &&
         (period.Frequency != PaymentPeriodFrequency.Daily ||
-         period.DayCount == DailyPeriod);
+         period.DayCount == DailyPeriod) &&
+        (period.Frequency != PaymentPeriodFrequency.Weekly ||
+         period.DayCount == WeeklyPeriod);
 
     public static bool IsTenDayPlan(PaymentPeriod? period) =>
         HasCompletePlan(period) && period!.DayCount == TenDayPeriod;
@@ -41,13 +44,28 @@ internal static class SubscriberPaymentScheduleRules
         HasCompletePlan(period) &&
         period!.Frequency == PaymentPeriodFrequency.Daily;
 
+    public static bool IsWeeklyPlan(PaymentPeriod? period) =>
+        HasCompletePlan(period) &&
+        period!.Frequency == PaymentPeriodFrequency.Weekly;
+
     public static DateOnly GetPlanStartDate(
         Subscriber subscriber,
-        DateOnly fallbackDate) =>
-        subscriber.PaymentPeriodStartedOn ??
-        (subscriber.CreatedAt == default
+        DateOnly fallbackDate)
+    {
+        if (subscriber.PaymentPeriodStartedOn.HasValue)
+        {
+            return subscriber.PaymentPeriodStartedOn.Value;
+        }
+
+        if (subscriber.FirstDeliveryDate != default)
+        {
+            return subscriber.FirstDeliveryDate;
+        }
+
+        return subscriber.CreatedAt == default
             ? fallbackDate
-            : ToBusinessDate(subscriber.CreatedAt));
+            : ToBusinessDate(subscriber.CreatedAt);
+    }
 
     public static DateOnly GetScheduledDueDate(
         int year,
@@ -81,21 +99,30 @@ internal static class SubscriberPaymentScheduleRules
         }
 
         var payments = new List<SubscriberScheduledPayment>();
-        if (IsDailyPlan(period))
+        if (IsDailyPlan(period) || IsWeeklyPlan(period))
         {
+            var coveredDayCount = IsWeeklyPlan(period)
+                ? WeeklyPeriod
+                : DailyPeriod;
             var paymentDate = startedOn;
             while (paymentDate <= scheduleEnd)
             {
                 payments.Add(new SubscriberScheduledPayment(
                     paymentDate,
-                    DailyPeriod,
+                    coveredDayCount,
                     DomainRules.RoundCurrency(period!.CollectionAmount!.Value)));
                 if (paymentDate == scheduleEnd)
                 {
                     break;
                 }
 
-                paymentDate = paymentDate.AddDays(1);
+                var nextPaymentDate = paymentDate.AddDays(coveredDayCount);
+                if (nextPaymentDate > scheduleEnd)
+                {
+                    break;
+                }
+
+                paymentDate = nextPaymentDate;
             }
 
             return payments;

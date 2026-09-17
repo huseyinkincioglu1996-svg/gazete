@@ -34,6 +34,13 @@
     </div>
 
     <div class="management-field">
+        <label asp-for="FirstDeliveryDate"></label>
+        <input asp-for="FirstDeliveryDate" type="date" />
+        <small>Geçmiş bir tarih seçerseniz dağıtım ve ödeme planı bu tarihten başlar.</small>
+        <span asp-validation-for="FirstDeliveryDate"></span>
+    </div>
+
+    <div class="management-field">
         <label asp-for="DistributorId"></label>
         <select asp-for="DistributorId" asp-items="Model.DistributorOptions">
             <option value="">Dağıtıcı atanmadı</option>

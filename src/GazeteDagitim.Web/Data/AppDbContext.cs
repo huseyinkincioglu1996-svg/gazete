@@ -188,10 +188,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
                 "[DayCount] BETWEEN 1 AND 365");
             table.HasCheckConstraint(
                 "CK_PaymentPeriods_Frequency",
-                "[Frequency] IN (0, 1)");
+                "[Frequency] IN (0, 1, 2)");
             table.HasCheckConstraint(
-                "CK_PaymentPeriods_DailyDayCount",
-                "[Frequency] <> 1 OR [DayCount] = 1");
+                "CK_PaymentPeriods_FrequencyDayCount",
+                "([Frequency] <> 1 OR [DayCount] = 1) AND " +
+                "([Frequency] <> 2 OR [DayCount] = 7)");
             table.HasCheckConstraint(
                 "CK_PaymentPeriods_CollectionDay",
                 "[CollectionDayOfMonth] IS NULL OR " +
@@ -248,6 +249,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         subscriber.Property(value => value.Address).HasMaxLength(500);
         subscriber.Property(value => value.MonthlyFee).HasPrecision(18, 2);
         subscriber.Property(value => value.Notes).HasMaxLength(1000);
+        subscriber.Property(value => value.FirstDeliveryDate)
+            .HasColumnType("date");
         subscriber.Property(value => value.PaymentPeriodStartedOn)
             .HasColumnType("date");
         subscriber.Property(value => value.Latitude).HasPrecision(9, 6);

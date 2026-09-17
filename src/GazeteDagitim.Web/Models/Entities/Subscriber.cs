@@ -23,6 +23,8 @@ public sealed class Subscriber : EntityBase
 
     public DateTimeOffset? DeactivatedAt { get; set; }
 
+    public DateOnly FirstDeliveryDate { get; set; }
+
     public int? PaymentPeriodId { get; set; }
 
     public PaymentPeriod? PaymentPeriod { get; set; }

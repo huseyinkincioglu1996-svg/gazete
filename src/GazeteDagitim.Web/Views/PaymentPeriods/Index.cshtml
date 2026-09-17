@@ -71,6 +71,8 @@
                                 <strong>
                                     @(item.IsDaily
                                         ? "Her gün"
+                                        : item.IsWeekly
+                                            ? "Başlangıçtan itibaren her 7 gün"
                                         : item.DayCount == 10
                                             ? "Ayın 10., 20. ve son günü"
                                             : $"Ayın {item.CollectionDayOfMonth}. günü")
@@ -83,7 +85,11 @@
                             }
                         </td>
                         <td data-label="Ödeme kapsamı">
-                            @(item.IsDaily ? "Her ödeme 1 gün" : $"{item.DayCount} gün")
+                            @(item.IsDaily
+                                ? "Her ödeme 1 gün"
+                                : item.IsWeekly
+                                    ? "Her ödeme 7 gün"
+                                    : $"{item.DayCount} gün")
                         </td>
                         <td data-label="Tutar">
                             @(item.CollectionAmount.HasValue

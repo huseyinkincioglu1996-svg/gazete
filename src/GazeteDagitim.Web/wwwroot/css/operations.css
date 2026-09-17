@@ -1598,6 +1598,40 @@
     min-height: 112px;
   }
 
+  .deliveries-page .summary-grid-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .deliveries-page .summary-grid-two .summary-card {
+    min-width: 0;
+    padding: 14px 8px;
+    border-radius: 14px;
+  }
+
+  .deliveries-page .summary-grid-two .summary-card > span {
+    font-size: .78rem;
+  }
+
+  .deliveries-page .summary-grid-two .summary-card > strong,
+  .deliveries-page .summary-grid-two .summary-total-with-listed > strong {
+    overflow-wrap: anywhere;
+    font-size: clamp(1.05rem, 5.2vw, 1.4rem);
+  }
+
+  .deliveries-page .summary-grid-two .summary-card small {
+    font-size: .68rem;
+    line-height: 1.35;
+  }
+
+  .deliveries-page .summary-grid-two .summary-card-open {
+    font-size: .68rem;
+  }
+
+  .deliveries-page .summary-grid-two .summary-listed-inline {
+    font-size: .82rem;
+  }
+
   .subscriber-monthly-card {
     min-height: 0;
   }
@@ -1626,6 +1660,32 @@
   .filter-bar {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .deliveries-page .date-control {
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-width: 0;
+    align-items: end;
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .deliveries-page .date-control label {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .deliveries-page .date-control input {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 6px;
+    font-size: .72rem;
+  }
+
+  .deliveries-page .date-control .button {
+    padding-inline: 7px;
+    font-size: .68rem;
+    white-space: nowrap;
   }
 
   .cash-sale-dialog {
@@ -1846,64 +1906,4 @@
     font-size: .78rem;
   }
 
-  .deliveries-page .date-control {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    min-width: 0;
-    align-items: end;
-    gap: 4px;
-    padding: 6px;
-  }
-
-  .deliveries-page .date-control label {
-    grid-column: 1 / -1;
-    min-width: 0;
-  }
-
-  .deliveries-page .date-control input {
-    width: 100%;
-    min-width: 0;
-    padding-inline: 6px;
-    font-size: .72rem;
-  }
-
-  .deliveries-page .date-control .button {
-    padding-inline: 7px;
-    font-size: .68rem;
-    white-space: nowrap;
-  }
-
-  .summary-grid-two {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .summary-grid-two .summary-card {
-    min-width: 0;
-    padding: 14px 10px;
-    border-radius: 14px;
-  }
-
-  .summary-grid-two .summary-card > span {
-    font-size: .78rem;
-  }
-
-  .summary-grid-two .summary-card > strong,
-  .summary-grid-two .summary-total-with-listed > strong {
-    overflow-wrap: anywhere;
-    font-size: clamp(1.15rem, 5.2vw, 1.4rem);
-  }
-
-  .summary-grid-two .summary-card small {
-    font-size: .72rem;
-    line-height: 1.35;
-  }
-
-  .summary-grid-two .summary-card-open {
-    font-size: .72rem;
-  }
-
-  .summary-grid-two .summary-listed-inline {
-    font-size: .9rem;
-  }
 }

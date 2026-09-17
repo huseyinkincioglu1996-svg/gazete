@@ -54,6 +54,16 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 });
 
 app.UseHttpsRedirection();
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.Equals("/service-worker.js", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+        context.Response.Headers["Service-Worker-Allowed"] = "/";
+    }
+
+    await next();
+});
 app.UseRouting();
 app.UseAuthorization();
 app.MapStaticAssets();

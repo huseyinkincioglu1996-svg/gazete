@@ -19,6 +19,11 @@ public sealed class SubscriberDeliveryService(
     {
         ArgumentNullException.ThrowIfNull(subscriber);
 
+        if (date < subscriber.FirstDeliveryDate)
+        {
+            return null;
+        }
+
         var selectedDays = subscriber.NewspaperDays
             .Select(value => value.Day)
             .ToHashSet();

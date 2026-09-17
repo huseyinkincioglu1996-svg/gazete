@@ -181,6 +181,7 @@ public sealed class WebInputSecurityTests
                 ("Address", ""),
                 ("Notes", ""),
                 ("MonthlyFee", "0.00"),
+                ("FirstDeliveryDate", TestDate.ToString("yyyy-MM-dd")),
                 ("IsActive", "true")));
         Assert.Equal(HttpStatusCode.Redirect, validResponse.StatusCode);
 
@@ -191,6 +192,7 @@ public sealed class WebInputSecurityTests
                 token,
                 ("Name", "Çakışan Günler"),
                 ("MonthlyFee", "0.00"),
+                ("FirstDeliveryDate", TestDate.ToString("yyyy-MM-dd")),
                 ("IsActive", "true"),
                 ("NewspaperDays", "SundayMonday"),
                 ("NewspaperDays", "Sunday")));

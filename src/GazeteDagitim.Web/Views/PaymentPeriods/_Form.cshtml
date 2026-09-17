@@ -14,10 +14,11 @@
         <label asp-for="ScheduleType"></label>
         <select asp-for="ScheduleType">
             <option value="@PaymentPeriodScheduleTypes.Monthly">Aylık / dönemsel</option>
+            <option value="@PaymentPeriodScheduleTypes.Weekly">Haftalık</option>
             <option value="@PaymentPeriodScheduleTypes.Daily">Günlük</option>
         </select>
         <small>
-            Günlük seçildiğinde abonenin ödeme vadesi her takvim günü oluşur.
+            Günlük, haftalık veya aylık tahsilat planını seçin.
         </small>
         <span asp-validation-for="ScheduleType"></span>
     </div>
@@ -74,6 +75,12 @@
          data-daily-schedule-note
          hidden>
         Günlük periyotta ödeme her takvim günü vadesine düşer ve her ödeme 1 günü kapsar.
+    </div>
+
+    <div class="management-feedback success management-span-full"
+         data-weekly-schedule-note
+         hidden>
+        Haftalık periyotta ilk vade abonenin periyot başlangıç günüdür; sonraki vadeler 7 günde bir oluşur ve her ödeme 7 günü kapsar.
     </div>
 
     <div class="management-field management-span-full">

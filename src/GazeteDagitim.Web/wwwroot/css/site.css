@@ -440,6 +440,189 @@ textarea:focus-visible {
     box-shadow 120ms ease;
 }
 
+.pwa-action-panel {
+  position: fixed;
+  z-index: 240;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: grid;
+  width: min(440px, calc(100vw - 32px));
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 16px;
+  padding: 12px;
+  background: linear-gradient(145deg, #1b1b20 0%, #09090b 100%);
+  box-shadow:
+    0 20px 48px rgb(0 0 0 / 58%),
+    inset 0 0 0 1px rgb(169 0 59 / 22%);
+  color: var(--rb-text);
+}
+
+.network-status-banner {
+  position: fixed;
+  z-index: 300;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  display: flex;
+  width: min(520px, calc(100vw - 24px));
+  align-items: center;
+  gap: 11px;
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 14px;
+  padding: 11px 14px;
+  background: linear-gradient(135deg, #a9003b, #650024);
+  box-shadow: 0 16px 42px rgb(0 0 0 / 58%);
+  color: #fff;
+  transform: translateX(-50%);
+}
+
+.network-status-banner[hidden] {
+  display: none;
+}
+
+.network-status-banner svg {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+}
+
+.network-status-banner span {
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.network-status-banner strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.network-status-banner--pulse {
+  animation: network-status-pulse 420ms ease-out;
+}
+
+body.is-offline :where(form[method="post" i], form[data-autosave-url])
+  :where(
+    button:not([data-cash-sale-close]),
+    input:not([type="hidden"]),
+    select,
+    textarea
+  ),
+body.is-offline [data-cash-sale-open] {
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+  opacity: 0.48;
+}
+
+body.is-offline .page-shell,
+body.is-offline .management-page {
+  padding-top: 104px;
+}
+
+body.is-offline .menu-page {
+  padding-top: max(94px, env(safe-area-inset-top));
+}
+
+@keyframes network-status-pulse {
+  50% {
+    box-shadow:
+      0 16px 42px rgb(0 0 0 / 58%),
+      0 0 0 6px rgb(251 63 121 / 24%);
+  }
+}
+
+.pwa-action-panel[hidden],
+.pwa-action-primary[hidden],
+.pwa-standalone .pwa-action-panel,
+.is-offline .pwa-action-panel {
+  display: none;
+}
+
+.pwa-action-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--rb-red-hover), #710029);
+  color: #fff;
+}
+
+.pwa-action-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.pwa-action-panel--update .pwa-action-icon {
+  background: linear-gradient(135deg, #287d46, #14532d);
+}
+
+.pwa-action-content {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pwa-action-content strong {
+  font-size: 0.9rem;
+  line-height: 1.25;
+}
+
+.pwa-action-content span {
+  color: var(--rb-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.pwa-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pwa-action-primary,
+.pwa-action-dismiss {
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+}
+
+.pwa-action-primary {
+  min-height: 38px;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: var(--rb-red);
+  font-size: 0.75rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.pwa-action-primary:hover {
+  background: var(--rb-red-hover);
+}
+
+.pwa-action-primary:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.pwa-action-dismiss {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 9px;
+  background: rgb(255 255 255 / 8%);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.pwa-action-dismiss:hover {
+  background: rgb(255 255 255 / 15%);
+}
+
 .edge-swipe-indicator.ready {
   border-color: rgb(255 255 255 / 34%);
   background: linear-gradient(135deg, #d4004d 0%, #8d0032 100%);
@@ -601,6 +784,31 @@ body.edge-swipe-active {
     width: 27px;
     height: 27px;
   }
+
+  .pwa-action-panel {
+    right: max(10px, env(safe-area-inset-right));
+    bottom: max(10px, env(safe-area-inset-bottom));
+    width: calc(100vw - 20px);
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 9px 10px;
+    border-radius: 14px;
+    padding: 10px;
+  }
+
+  .pwa-action-buttons {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+
+  .pwa-action-primary {
+    flex: 1;
+  }
+
+  .pwa-action-panel--ios .pwa-action-buttons {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+  }
 }
 
 @media (max-width: 520px) {
@@ -621,7 +829,9 @@ body.edge-swipe-active {
 
 @media (prefers-reduced-motion: reduce) {
   .menu-tile,
-  .edge-swipe-indicator {
+  .edge-swipe-indicator,
+  .network-status-banner {
     transition: none;
+    animation: none;
   }
 }

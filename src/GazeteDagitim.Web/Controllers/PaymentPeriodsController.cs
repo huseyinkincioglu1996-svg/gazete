@@ -2,16 +2,13 @@ using GazeteDagitim.Web.Data;
 using GazeteDagitim.Web.Models.Entities;
 using GazeteDagitim.Web.Models.Enums;
 using GazeteDagitim.Web.Models.ViewModels.PaymentPeriods;
-using GazeteDagitim.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GazeteDagitim.Web.Controllers;
 
 [Route("settings")]
-public sealed class PaymentPeriodsController(
-    AppDbContext dbContext,
-    IBusinessClock businessClock) : Controller
+public sealed class PaymentPeriodsController(AppDbContext dbContext) : Controller
 {
     private readonly AppDbContext _dbContext = dbContext;
 
@@ -103,9 +100,12 @@ public sealed class PaymentPeriodsController(
         {
             Id = period.Id,
             Name = period.Name,
-            ScheduleType = period.Frequency == PaymentPeriodFrequency.Daily
-                ? PaymentPeriodScheduleTypes.Daily
-                : PaymentPeriodScheduleTypes.Monthly,
+            ScheduleType = period.Frequency switch
+            {
+                PaymentPeriodFrequency.Daily => PaymentPeriodScheduleTypes.Daily,
+                PaymentPeriodFrequency.Weekly => PaymentPeriodScheduleTypes.Weekly,
+                _ => PaymentPeriodScheduleTypes.Monthly
+            },
             DayCount = period.DayCount,
             CollectionDayOfMonth = period.CollectionDayOfMonth,
             CollectionTime = period.CollectionTime,
@@ -152,7 +152,7 @@ public sealed class PaymentPeriodsController(
                 .ToListAsync(cancellationToken);
             foreach (var subscriber in subscribers)
             {
-                subscriber.PaymentPeriodStartedOn = businessClock.Today;
+                subscriber.PaymentPeriodStartedOn = subscriber.FirstDeliveryDate;
             }
         }
 
@@ -229,7 +229,8 @@ public sealed class PaymentPeriodsController(
 
     private static int? NormalizeCollectionDay(
         PaymentPeriodFormViewModel model) =>
-        model.ScheduleType == PaymentPeriodScheduleTypes.Daily
+        model.ScheduleType is PaymentPeriodScheduleTypes.Daily or
+            PaymentPeriodScheduleTypes.Weekly
             ? 1
             : model.DayCount == 10
                 ? 10
@@ -237,18 +238,27 @@ public sealed class PaymentPeriodsController(
 
     private static PaymentPeriodFrequency NormalizeFrequency(
         PaymentPeriodFormViewModel model) =>
-        model.ScheduleType == PaymentPeriodScheduleTypes.Daily
-            ? PaymentPeriodFrequency.Daily
-            : PaymentPeriodFrequency.Monthly;
+        model.ScheduleType switch
+        {
+            PaymentPeriodScheduleTypes.Daily => PaymentPeriodFrequency.Daily,
+            PaymentPeriodScheduleTypes.Weekly => PaymentPeriodFrequency.Weekly,
+            _ => PaymentPeriodFrequency.Monthly
+        };
 
     private void NormalizeScheduleInput(PaymentPeriodFormViewModel model)
     {
-        if (model.ScheduleType != PaymentPeriodScheduleTypes.Daily)
+        var normalizedDayCount = model.ScheduleType switch
+        {
+            PaymentPeriodScheduleTypes.Daily => 1,
+            PaymentPeriodScheduleTypes.Weekly => 7,
+            _ => (int?)null
+        };
+        if (!normalizedDayCount.HasValue)
         {
             return;
         }
 
-        model.DayCount = 1;
+        model.DayCount = normalizedDayCount.Value;
         model.CollectionDayOfMonth = 1;
         ModelState.Remove(nameof(PaymentPeriodFormViewModel.DayCount));
         ModelState.Remove(nameof(PaymentPeriodFormViewModel.CollectionDayOfMonth));

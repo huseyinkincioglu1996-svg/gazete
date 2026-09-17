@@ -133,6 +133,7 @@
   };
 
   const syncControlAvailability = (row) => {
+    const offline = !navigator.onLine;
     const saving = row.classList.contains("is-saving");
     const collected = row.dataset.collected === "true";
     const paymentAvailable =
@@ -143,14 +144,18 @@
     });
     const deliveryToggle = row.querySelector("[data-delivered-toggle]");
     if (deliveryToggle) {
-      deliveryToggle.disabled = cashLocked || saving;
+      deliveryToggle.disabled = offline || cashLocked || saving;
     }
     const collectionToggle = row.querySelector("[data-collected-toggle]");
     if (collectionToggle) {
-      collectionToggle.disabled = cashLocked || saving || !paymentAvailable;
+      collectionToggle.disabled = offline || cashLocked || saving || !paymentAvailable;
     }
     row.querySelectorAll("[data-payment-field]").forEach((field) => {
-      field.disabled = cashLocked || saving || !collected || !paymentAvailable;
+      field.disabled = offline
+        || cashLocked
+        || saving
+        || !collected
+        || !paymentAvailable;
     });
   };
 
@@ -295,6 +300,19 @@
     moveProcessedToEnd = false,
   ) => {
     const previousState = persistedStates.get(row) || getRowState(row);
+
+    if (!navigator.onLine) {
+      applyRowState(row, previousState);
+      updateTotals();
+      sortRows();
+      setRowStatus(row, "İnternet bağlantısı yok. İşlem yapılamaz.", "error");
+      setPageStatus(
+        "İnternet bağlantısı yok. Kayıt işlemleri devre dışı.",
+        "error",
+      );
+      return;
+    }
+
     const body = new URLSearchParams({
       __RequestVerificationToken: antiforgeryField.value,
       Date: dateField.value,
@@ -372,6 +390,12 @@
   };
 
   const rows = [...rowsContainer.querySelectorAll("[data-delivery-row]")];
+  const syncAllControlAvailability = () => {
+    rows.forEach(syncControlAvailability);
+  };
+
+  window.addEventListener("online", syncAllControlAvailability);
+  window.addEventListener("offline", syncAllControlAvailability);
   rows.forEach((row) => {
     persistedStates.set(row, getRowState(row));
     syncControlAvailability(row);

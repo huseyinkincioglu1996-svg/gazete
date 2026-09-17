@@ -53,6 +53,10 @@ public sealed class SubscriberFormViewModel : IValidatableObject
     [Display(Name = "Aktif abone")]
     public bool IsActive { get; set; } = true;
 
+    [Required(ErrorMessage = "İlk gazete aldığı tarih zorunludur.")]
+    [Display(Name = "İlk gazete aldığı tarih")]
+    public DateOnly? FirstDeliveryDate { get; set; }
+
     [Display(Name = "Ödeme periyodu")]
     public int? PaymentPeriodId { get; set; }
 

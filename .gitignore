@@ -13,6 +13,7 @@ backend/.local-mongodb/
 
 # Proje-yerel .NET SDK ve derleme çıktıları
 .dotnet/
+.deploy/
 .vs/
 **/bin/
 **/obj/

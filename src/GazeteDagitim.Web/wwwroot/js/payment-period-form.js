@@ -8,6 +8,9 @@
   const amountHint = document.querySelector("[data-collection-amount-hint]");
   const dailyNote = document.querySelector("[data-daily-schedule-note]");
   const weeklyNote = document.querySelector("[data-weekly-schedule-note]");
+  const tenDayNote = document.querySelector("[data-ten-day-schedule-note]");
+  const form = scheduleType?.closest("form");
+  const submitButton = form?.querySelector('button[type="submit"]');
   const monthlyFields = document.querySelectorAll(
     "[data-monthly-schedule-field]",
   );
@@ -18,7 +21,8 @@
     !hint ||
     !amountHint ||
     !dailyNote ||
-    !weeklyNote
+    !weeklyNote ||
+    !tenDayNote
   ) return;
 
   const defaultHint = hint.dataset.defaultText || hint.textContent.trim();
@@ -46,20 +50,24 @@
   const syncScheduleType = () => {
     const isDaily = scheduleType.value === "daily";
     const isWeekly = scheduleType.value === "weekly";
-    const isFixedInterval = isDaily || isWeekly;
+    const isTenDay = scheduleType.value === "ten-day";
+    const isFixedInterval = isDaily || isWeekly || isTenDay;
     monthlyFields.forEach((field) => {
       field.hidden = isFixedInterval;
     });
     dailyNote.hidden = !isDaily;
     weeklyNote.hidden = !isWeekly;
+    tenDayNote.hidden = !isTenDay;
 
     if (isFixedInterval) {
-      dayCount.value = isWeekly ? "7" : "1";
-      collectionDay.value = "1";
+      dayCount.value = isTenDay ? "10" : isWeekly ? "7" : "1";
+      collectionDay.value = isTenDay ? "10" : "1";
       dayCount.readOnly = true;
       collectionDay.readOnly = true;
       amountHint.textContent =
-        isWeekly
+        isTenDay
+          ? "Bu tutar 10 günlük temel tutardır; ayın son dilimi kalan gün sayısına göre oranlanır."
+          : isWeekly
           ? "Bu tutar her 7 günlük dönem için tahsil edilecek tutardır."
           : "Bu tutar her takvim günü için ayrı tahsilat tutarıdır.";
       return;
@@ -76,7 +84,13 @@
     syncTenDaySchedule();
   };
 
-  scheduleType.addEventListener("change", syncScheduleType);
+  scheduleType.addEventListener("change", () => {
+    if (scheduleType.value === "monthly") {
+      dayCount.value = monthlyDayCount || "30";
+      collectionDay.value = monthlyCollectionDay || "1";
+    }
+    syncScheduleType();
+  });
   dayCount.addEventListener("input", () => {
     if (scheduleType.value === "monthly") {
       monthlyDayCount = dayCount.value;
@@ -93,5 +107,39 @@
       monthlyCollectionDay = collectionDay.value;
     }
   });
+
+  if (form && submitButton) {
+    const originalButtonText = submitButton.textContent.trim();
+
+    form.addEventListener("submit", (event) => {
+      if (form.dataset.submitPending === "true") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+
+      const validator = window.jQuery?.(form);
+      if (typeof validator?.valid === "function" && !validator.valid()) {
+        return;
+      }
+
+      form.dataset.submitPending = "true";
+      submitButton.disabled = true;
+      submitButton.setAttribute("aria-disabled", "true");
+      submitButton.textContent = "Kaydediliyor...";
+    });
+
+    window.addEventListener("pageshow", () => {
+      delete form.dataset.submitPending;
+      if (submitButton.hasAttribute("data-offline-lock-managed")) {
+        submitButton.setAttribute("data-offline-original-disabled", "false");
+      } else {
+        submitButton.disabled = false;
+        submitButton.removeAttribute("aria-disabled");
+      }
+      submitButton.textContent = originalButtonText;
+    });
+  }
+
   syncScheduleType();
 })();

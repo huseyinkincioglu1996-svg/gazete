@@ -8,6 +8,7 @@ namespace GazeteDagitim.Web.Models.ViewModels.PaymentPeriods;
 public static class PaymentPeriodScheduleTypes
 {
     public const string Monthly = "monthly";
+    public const string TenDay = "ten-day";
     public const string Daily = "daily";
     public const string Weekly = "weekly";
 }
@@ -44,7 +45,7 @@ public sealed class PaymentPeriodFormViewModel : IValidatableObject
 
     [Required(ErrorMessage = "Tahsilat sıklığı zorunludur.")]
     [RegularExpression(
-        "^(monthly|daily|weekly)$",
+        "^(monthly|ten-day|daily|weekly)$",
         ErrorMessage = "Tahsilat sıklığı geçersizdir.")]
     [Display(Name = "Tahsilat sıklığı")]
     public string ScheduleType { get; set; } = PaymentPeriodScheduleTypes.Monthly;

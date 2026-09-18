@@ -3,6 +3,7 @@ using GazeteDagitim.Web.Models.Entities;
 using GazeteDagitim.Web.Models.Enums;
 using GazeteDagitim.Web.Models.ViewModels.PaymentPeriods;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace GazeteDagitim.Web.Controllers;
@@ -78,7 +79,11 @@ public sealed class PaymentPeriodsController(AppDbContext dbContext) : Controlle
         };
 
         _dbContext.PaymentPeriods.Add(period);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        if (!await TrySaveChangesAsync(period.Name, null, cancellationToken))
+        {
+            _dbContext.Entry(period).State = EntityState.Detached;
+            return View(model);
+        }
 
         TempData["Notice"] = $"{period.Name} ödeme periyodu oluşturuldu.";
         return RedirectToAction(nameof(Index));
@@ -104,6 +109,8 @@ public sealed class PaymentPeriodsController(AppDbContext dbContext) : Controlle
             {
                 PaymentPeriodFrequency.Daily => PaymentPeriodScheduleTypes.Daily,
                 PaymentPeriodFrequency.Weekly => PaymentPeriodScheduleTypes.Weekly,
+                PaymentPeriodFrequency.Monthly when period.DayCount == 10 =>
+                    PaymentPeriodScheduleTypes.TenDay,
                 _ => PaymentPeriodScheduleTypes.Monthly
             },
             DayCount = period.DayCount,
@@ -165,7 +172,11 @@ public sealed class PaymentPeriodsController(AppDbContext dbContext) : Controlle
         period.Description = model.Description?.Trim() ?? string.Empty;
         period.IsActive = model.IsActive;
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        if (!await TrySaveChangesAsync(period.Name, id, cancellationToken))
+        {
+            model.Id = id;
+            return View(model);
+        }
 
         TempData["Notice"] = $"{period.Name} ödeme periyodu güncellendi.";
         return RedirectToAction(nameof(Index));
@@ -219,6 +230,49 @@ public sealed class PaymentPeriodsController(AppDbContext dbContext) : Controlle
         }
     }
 
+    private async Task<bool> TrySaveChangesAsync(
+        string normalizedName,
+        int? ignoredId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch (DbUpdateException exception)
+            when (IsPaymentPeriodNameConflict(exception))
+        {
+            var duplicateExists = await _dbContext.PaymentPeriods
+                .AsNoTracking()
+                .AnyAsync(
+                    period =>
+                        period.Id != ignoredId &&
+                        period.Name == normalizedName,
+                    cancellationToken);
+
+            if (!duplicateExists)
+            {
+                throw;
+            }
+
+            ModelState.AddModelError(
+                nameof(PaymentPeriodFormViewModel.Name),
+                "Bu adla bir ödeme periyodu zaten var.");
+            return false;
+        }
+    }
+
+    private static bool IsPaymentPeriodNameConflict(
+        DbUpdateException exception) =>
+        exception.InnerException is SqlException
+        {
+            Number: 2601 or 2627
+        } sqlException &&
+        sqlException.Message.Contains(
+            "UX_PaymentPeriods_Name",
+            StringComparison.OrdinalIgnoreCase);
+
     private static string NormalizeStatus(string? status) =>
         status?.Trim().ToLowerInvariant() switch
         {
@@ -229,12 +283,15 @@ public sealed class PaymentPeriodsController(AppDbContext dbContext) : Controlle
 
     private static int? NormalizeCollectionDay(
         PaymentPeriodFormViewModel model) =>
-        model.ScheduleType is PaymentPeriodScheduleTypes.Daily or
-            PaymentPeriodScheduleTypes.Weekly
-            ? 1
-            : model.DayCount == 10
+        model.ScheduleType switch
+        {
+            PaymentPeriodScheduleTypes.Daily or
+                PaymentPeriodScheduleTypes.Weekly => 1,
+            PaymentPeriodScheduleTypes.TenDay => 10,
+            _ => model.DayCount == 10
                 ? 10
-                : model.CollectionDayOfMonth;
+                : model.CollectionDayOfMonth
+        };
 
     private static PaymentPeriodFrequency NormalizeFrequency(
         PaymentPeriodFormViewModel model) =>
@@ -242,6 +299,7 @@ public sealed class PaymentPeriodsController(AppDbContext dbContext) : Controlle
         {
             PaymentPeriodScheduleTypes.Daily => PaymentPeriodFrequency.Daily,
             PaymentPeriodScheduleTypes.Weekly => PaymentPeriodFrequency.Weekly,
+            PaymentPeriodScheduleTypes.TenDay => PaymentPeriodFrequency.Monthly,
             _ => PaymentPeriodFrequency.Monthly
         };
 
@@ -251,6 +309,7 @@ public sealed class PaymentPeriodsController(AppDbContext dbContext) : Controlle
         {
             PaymentPeriodScheduleTypes.Daily => 1,
             PaymentPeriodScheduleTypes.Weekly => 7,
+            PaymentPeriodScheduleTypes.TenDay => 10,
             _ => (int?)null
         };
         if (!normalizedDayCount.HasValue)
@@ -259,7 +318,10 @@ public sealed class PaymentPeriodsController(AppDbContext dbContext) : Controlle
         }
 
         model.DayCount = normalizedDayCount.Value;
-        model.CollectionDayOfMonth = 1;
+        model.CollectionDayOfMonth = model.ScheduleType ==
+            PaymentPeriodScheduleTypes.TenDay
+                ? 10
+                : 1;
         ModelState.Remove(nameof(PaymentPeriodFormViewModel.DayCount));
         ModelState.Remove(nameof(PaymentPeriodFormViewModel.CollectionDayOfMonth));
     }

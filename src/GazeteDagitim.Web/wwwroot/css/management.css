@@ -196,6 +196,183 @@
   text-align: center !important;
 }
 
+.payment-period-list {
+  display: grid;
+  gap: 10px;
+}
+
+.payment-period-row {
+  overflow: hidden;
+  border: 1px solid var(--management-border);
+  border-radius: 12px;
+  background: var(--management-surface);
+  color: var(--management-text);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 20%);
+}
+
+.payment-period-row.is-passive {
+  background: #0c0c0e;
+  opacity: 0.76;
+}
+
+.payment-period-row[open] {
+  border-color: #57575f;
+}
+
+.payment-period-summary {
+  display: grid;
+  min-height: 72px;
+  grid-template-columns:
+    minmax(180px, 1.4fr)
+    minmax(190px, 1.2fr)
+    minmax(120px, 0.65fr)
+    auto
+    24px;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.payment-period-summary::-webkit-details-marker {
+  display: none;
+}
+
+.payment-period-summary::marker {
+  content: "";
+}
+
+.payment-period-summary:hover {
+  background: rgb(169 0 59 / 8%);
+}
+
+.payment-period-summary:focus-visible {
+  outline: 3px solid var(--management-focus);
+  outline-offset: -3px;
+}
+
+.payment-period-summary-name,
+.payment-period-summary-meta {
+  min-width: 0;
+}
+
+.payment-period-summary-name > strong,
+.payment-period-summary-name > small,
+.payment-period-summary-meta > strong,
+.payment-period-summary-meta > small {
+  display: block;
+}
+
+.payment-period-summary-name > strong,
+.payment-period-summary-meta > strong {
+  overflow-wrap: anywhere;
+}
+
+.payment-period-summary-name > strong {
+  font-size: 0.92rem;
+}
+
+.payment-period-summary-name > small,
+.payment-period-summary-meta > small {
+  margin-bottom: 4px;
+  color: var(--management-muted);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.payment-period-summary-name > small {
+  margin: 4px 0 0;
+  text-transform: none;
+}
+
+.payment-period-summary-meta > strong {
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.payment-period-chevron {
+  width: 11px;
+  height: 11px;
+  border-right: 2px solid #d4d4d8;
+  border-bottom: 2px solid #d4d4d8;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.18s ease;
+}
+
+.payment-period-row[open] .payment-period-chevron {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+
+.payment-period-details {
+  border-top: 1px solid var(--management-border);
+  padding: 16px;
+  background: #0d0d0f;
+}
+
+.payment-period-definition-grid {
+  display: grid;
+  overflow: hidden;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  border: 1px solid var(--management-border);
+  border-radius: 10px;
+  background: var(--management-border);
+}
+
+.payment-period-definition-grid > div {
+  min-width: 0;
+  padding: 13px;
+  background: var(--management-surface);
+}
+
+.payment-period-definition-grid dt {
+  color: var(--management-muted);
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.payment-period-definition-grid dd {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.payment-period-definition-grid dd > strong,
+.payment-period-definition-grid dd > small {
+  display: block;
+}
+
+.payment-period-definition-grid dd > small {
+  margin-top: 4px;
+  color: var(--management-muted);
+}
+
+.payment-period-actions {
+  margin-top: 14px;
+}
+
+.payment-period-empty {
+  border: 1px solid var(--management-border);
+  border-radius: 12px;
+  padding: 34px;
+  background: var(--management-surface);
+  color: var(--management-muted);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .payment-period-chevron {
+    transition: none;
+  }
+}
+
 .management-row-actions {
   display: flex;
   align-items: center;
@@ -951,6 +1128,47 @@
     text-align: center;
   }
 
+  .payment-period-summary {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) auto 22px;
+    gap: 9px 11px;
+    padding: 13px;
+  }
+
+  .payment-period-summary-name {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .payment-period-summary-time {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .payment-period-summary-amount {
+    grid-column: 2 / 4;
+    grid-row: 2;
+    text-align: right;
+  }
+
+  .payment-period-summary > .management-status {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .payment-period-chevron {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .payment-period-definition-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .payment-period-details {
+    padding: 13px;
+  }
+
   .management-table-shell {
     overflow: visible;
     border: 0;
@@ -1061,6 +1279,16 @@
 }
 
 @media (max-width: 480px) {
+  .payment-period-definition-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-period-actions,
+  .payment-period-actions form,
+  .payment-period-actions .management-button {
+    width: 100%;
+  }
+
   .management-table td {
     display: block;
   }

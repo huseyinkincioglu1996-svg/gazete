@@ -39,93 +39,100 @@
         </a>
     </nav>
 
-    <div class="management-table-shell">
-        <table class="management-table">
-            <thead>
-                <tr>
-                    <th>Periyot</th>
-                    <th>Tahsilat zamanı</th>
-                    <th>Ödeme kapsamı</th>
-                    <th>Tutar</th>
-                    <th>Açıklama</th>
-                    <th>Durum</th>
-                    <th class="management-actions-heading">İşlemler</th>
-                </tr>
-            </thead>
-            <tbody>
-            @if (Model.Items.Count == 0)
+    @if (Model.Items.Count == 0)
+    {
+        <div class="payment-period-empty">Bu filtreye uygun ödeme periyodu bulunamadı.</div>
+    }
+    else
+    {
+        <section class="payment-period-list" aria-label="Ödeme periyotları">
+            @foreach (var item in Model.Items)
             {
-                <tr>
-                    <td class="management-empty" colspan="7">Bu filtreye uygun ödeme periyodu bulunamadı.</td>
-                </tr>
-            }
-            else
-            {
-                @foreach (var item in Model.Items)
-                {
-                    <tr class="@(!item.IsActive ? "is-passive" : null)">
-                        <td data-label="Periyot"><strong>@item.Name</strong></td>
-                        <td data-label="Tahsilat zamanı">
-                            @if (item.CollectionDayOfMonth.HasValue && item.CollectionTime.HasValue)
-                            {
-                                <strong>
-                                    @(item.IsDaily
-                                        ? "Her gün"
-                                        : item.IsWeekly
-                                            ? "Başlangıçtan itibaren her 7 gün"
-                                        : item.DayCount == 10
-                                            ? "Ayın 10., 20. ve son günü"
-                                            : $"Ayın {item.CollectionDayOfMonth}. günü")
-                                </strong>
-                                <small>@item.CollectionTime.Value.ToString("HH:mm")</small>
-                            }
-                            else
-                            {
-                                <span class="management-muted">Belirlenmedi</span>
-                            }
-                        </td>
-                        <td data-label="Ödeme kapsamı">
-                            @(item.IsDaily
-                                ? "Her ödeme 1 gün"
-                                : item.IsWeekly
-                                    ? "Her ödeme 7 gün"
-                                    : $"{item.DayCount} gün")
-                        </td>
-                        <td data-label="Tutar">
-                            @(item.CollectionAmount.HasValue
-                                ? item.CollectionAmount.Value.ToString("C2", tr)
-                                : "Belirlenmedi")
-                        </td>
-                        <td data-label="Açıklama">
-                            @(string.IsNullOrWhiteSpace(item.Description) ? "Açıklama yok" : item.Description)
-                        </td>
-                        <td data-label="Durum">
-                            <span class="management-status @(item.IsActive ? "active" : "passive")">
-                                @(item.IsActive ? "Aktif" : "Pasif")
-                            </span>
-                        </td>
-                        <td data-label="İşlemler">
-                            <div class="management-row-actions">
-                                <a class="management-button management-button-secondary"
-                                   asp-action="Edit"
-                                   asp-route-id="@item.Id">
-                                    Düzenle
-                                </a>
-                                <form asp-action="ToggleStatus" asp-route-id="@item.Id" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="isActive" value="@(!item.IsActive)" />
-                                    <input type="hidden" name="status" value="@Model.Status" />
-                                    <button class="management-button @(item.IsActive ? "management-button-danger" : "management-button-primary")"
-                                            type="submit">
-                                        @(item.IsActive ? "Pasife al" : "Aktifleştir")
-                                    </button>
-                                </form>
+                var collectionTiming = item.CollectionDayOfMonth.HasValue && item.CollectionTime.HasValue
+                    ? item.IsDaily
+                        ? "Her gün"
+                        : item.IsWeekly
+                            ? "Başlangıçtan itibaren her 7 gün"
+                            : item.DayCount == 10
+                                ? "Ayın 10., 20. ve son günü"
+                                : $"Ayın {item.CollectionDayOfMonth}. günü"
+                    : "Belirlenmedi";
+                var collectionTime = item.CollectionTime?.ToString("HH:mm") ?? string.Empty;
+                var coverage = item.IsDaily
+                    ? "Her ödeme 1 gün"
+                    : item.IsWeekly
+                        ? "Her ödeme 7 gün"
+                        : $"{item.DayCount} gün";
+                var amount = item.CollectionAmount.HasValue
+                    ? item.CollectionAmount.Value.ToString("C2", tr)
+                    : "Belirlenmedi";
+
+                <details class="payment-period-row @(!item.IsActive ? "is-passive" : null)">
+                    <summary class="payment-period-summary"
+                             aria-label="@item.Name ayrıntılarını aç veya kapat">
+                        <span class="payment-period-summary-name">
+                            <strong>@item.Name</strong>
+                            <small>@coverage</small>
+                        </span>
+                        <span class="payment-period-summary-meta payment-period-summary-time">
+                            <small>Tahsilat zamanı</small>
+                            <strong>@collectionTiming</strong>
+                        </span>
+                        <span class="payment-period-summary-meta payment-period-summary-amount">
+                            <small>Tutar</small>
+                            <strong>@amount</strong>
+                        </span>
+                        <span class="management-status @(item.IsActive ? "active" : "passive")">
+                            @(item.IsActive ? "Aktif" : "Pasif")
+                        </span>
+                        <span class="payment-period-chevron" aria-hidden="true"></span>
+                    </summary>
+
+                    <div class="payment-period-details">
+                        <dl class="payment-period-definition-grid">
+                            <div>
+                                <dt>Tahsilat zamanı</dt>
+                                <dd>
+                                    <strong>@collectionTiming</strong>
+                                    @if (!string.IsNullOrWhiteSpace(collectionTime))
+                                    {
+                                        <small>@collectionTime</small>
+                                    }
+                                </dd>
                             </div>
-                        </td>
-                    </tr>
-                }
+                            <div>
+                                <dt>Ödeme kapsamı</dt>
+                                <dd>@coverage</dd>
+                            </div>
+                            <div>
+                                <dt>Tutar</dt>
+                                <dd>@amount</dd>
+                            </div>
+                            <div>
+                                <dt>Açıklama</dt>
+                                <dd>@(string.IsNullOrWhiteSpace(item.Description) ? "Açıklama yok" : item.Description)</dd>
+                            </div>
+                        </dl>
+
+                        <div class="management-row-actions payment-period-actions">
+                            <a class="management-button management-button-secondary"
+                               asp-action="Edit"
+                               asp-route-id="@item.Id">
+                                Düzenle
+                            </a>
+                            <form asp-action="ToggleStatus" asp-route-id="@item.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="isActive" value="@(!item.IsActive)" />
+                                <input type="hidden" name="status" value="@Model.Status" />
+                                <button class="management-button @(item.IsActive ? "management-button-danger" : "management-button-primary")"
+                                        type="submit">
+                                    @(item.IsActive ? "Pasife al" : "Aktifleştir")
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </details>
             }
-            </tbody>
-        </table>
-    </div>
+        </section>
+    }
 </main>

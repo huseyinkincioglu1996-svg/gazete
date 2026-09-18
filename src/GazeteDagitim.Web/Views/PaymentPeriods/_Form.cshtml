@@ -14,11 +14,12 @@
         <label asp-for="ScheduleType"></label>
         <select asp-for="ScheduleType">
             <option value="@PaymentPeriodScheduleTypes.Monthly">Aylık / dönemsel</option>
+            <option value="@PaymentPeriodScheduleTypes.TenDay">10 günlük</option>
             <option value="@PaymentPeriodScheduleTypes.Weekly">Haftalık</option>
             <option value="@PaymentPeriodScheduleTypes.Daily">Günlük</option>
         </select>
         <small>
-            Günlük, haftalık veya aylık tahsilat planını seçin.
+            Günlük, haftalık, 10 günlük veya aylık tahsilat planını seçin.
         </small>
         <span asp-validation-for="ScheduleType"></span>
     </div>
@@ -81,6 +82,12 @@
          data-weekly-schedule-note
          hidden>
         Haftalık periyotta ilk vade abonenin periyot başlangıç günüdür; sonraki vadeler 7 günde bir oluşur ve her ödeme 7 günü kapsar.
+    </div>
+
+    <div class="management-feedback success management-span-full"
+         data-ten-day-schedule-note
+         hidden>
+        10 günlük periyotta ödemeler ayın 10., 20. ve son günü alınır. Son ödeme, ayda kalan gün sayısına göre otomatik hesaplanır.
     </div>
 
     <div class="management-field management-span-full">

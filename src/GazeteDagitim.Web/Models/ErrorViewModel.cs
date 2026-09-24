@@ -6,3 +6,8 @@ public class ErrorViewModel
 
     public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 }
+
+public sealed class FormExpiredViewModel
+{
+    public string ReturnUrl { get; init; } = "/menu";
+}

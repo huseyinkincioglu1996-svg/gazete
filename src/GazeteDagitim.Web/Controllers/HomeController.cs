@@ -71,6 +71,20 @@ public class HomeController : Controller
         return View();
     }
 
+    [HttpGet("form-expired")]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult FormExpired(string? returnUrl)
+    {
+        var safeReturnUrl = Url.IsLocalUrl(returnUrl)
+            ? returnUrl
+            : "/menu";
+
+        return View(new FormExpiredViewModel
+        {
+            ReturnUrl = safeReturnUrl
+        });
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

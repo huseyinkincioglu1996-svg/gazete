@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using GazeteDagitim.Web.Models.ViewModels;
 
 namespace GazeteDagitim.Web.Models.ViewModels.Subscribers;
 
@@ -89,9 +90,11 @@ public sealed class SubscriberPaymentMovementViewModel
 public sealed class SubscriberPaymentDeferralInputModel : IValidatableObject
 {
     [Required(ErrorMessage = "Ertelenecek ödeme günü bulunamadı.")]
+    [SupportedDate]
     public DateOnly? OriginalDueDate { get; set; }
 
     [Required(ErrorMessage = "Yeni ödeme tarihi zorunludur.")]
+    [SupportedDate]
     [Display(Name = "Yeni ödeme tarihi")]
     public DateOnly? DeferredUntil { get; set; }
 

@@ -1,0 +1,39 @@
+@model FormExpiredViewModel
+@{
+    ViewData["Title"] = "Formun Süresi Doldu";
+    ViewData["ParentMenu"] = "/menu";
+}
+
+<link rel="stylesheet" href="~/css/management.css" asp-append-version="true" />
+
+<main id="main-content" class="management-page management-page-narrow">
+    <header class="management-heading">
+        <div>
+            <span class="management-eyebrow">GÜVENLİK KONTROLÜ</span>
+            <h1>Formun süresi doldu</h1>
+            <p>
+                Güvenliğiniz için eski veya geçersiz bir formdan gelen kayıt işlemi yapılmadı.
+            </p>
+        </div>
+    </header>
+
+    <section class="management-form" aria-labelledby="expired-form-heading">
+        <div class="management-form-grid">
+            <div class="management-span-full">
+                <h2 id="expired-form-heading">Verileriniz kaydedilmedi</h2>
+                <p class="management-muted">
+                    Formu yeniden açıp bilgileri kontrol ettikten sonra tekrar kaydedin.
+                    Bu ekran, uygulama güncellendiğinde veya uzun süre açık kalan formlarda görülebilir.
+                </p>
+            </div>
+        </div>
+        <div class="management-form-actions">
+            <a class="management-button management-button-secondary" href="/menu">
+                Ana menü
+            </a>
+            <a class="management-button management-button-primary" href="@Model.ReturnUrl">
+                Formu yeniden aç
+            </a>
+        </div>
+    </section>
+</main>

@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using GazeteDagitim.Web.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -43,6 +45,7 @@ public sealed class SubscriberFormViewModel : IValidatableObject
     public string? Address { get; set; }
 
     [Range(typeof(decimal), "0", "999999999", ErrorMessage = "Aylık ücret sıfır veya daha büyük olmalıdır.")]
+    [ModelBinder(BinderType = typeof(InvariantDecimalModelBinder))]
     [Display(Name = "Aylık ücret")]
     public decimal MonthlyFee { get; set; }
 
@@ -54,6 +57,7 @@ public sealed class SubscriberFormViewModel : IValidatableObject
     public bool IsActive { get; set; } = true;
 
     [Required(ErrorMessage = "İlk gazete aldığı tarih zorunludur.")]
+    [SupportedDate]
     [Display(Name = "İlk gazete aldığı tarih")]
     public DateOnly? FirstDeliveryDate { get; set; }
 
@@ -64,10 +68,12 @@ public sealed class SubscriberFormViewModel : IValidatableObject
     public int? DistributorId { get; set; }
 
     [Range(typeof(decimal), "-90", "90", ErrorMessage = "Enlem -90 ile 90 arasında olmalıdır.")]
+    [ModelBinder(BinderType = typeof(InvariantDecimalModelBinder))]
     [Display(Name = "Enlem")]
     public decimal? Latitude { get; set; }
 
     [Range(typeof(decimal), "-180", "180", ErrorMessage = "Boylam -180 ile 180 arasında olmalıdır.")]
+    [ModelBinder(BinderType = typeof(InvariantDecimalModelBinder))]
     [Display(Name = "Boylam")]
     public decimal? Longitude { get; set; }
 

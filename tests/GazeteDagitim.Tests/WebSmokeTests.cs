@@ -1,4 +1,5 @@
 using GazeteDagitim.Web.Data;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,22 @@ public sealed class WebSmokeTests : IClassFixture<GazeteWebFactory>
 
 public sealed class GazeteWebFactory : WebApplicationFactory<Program>
 {
+    public GazeteWebFactory()
+        : this(null)
+    {
+    }
+
+    internal GazeteWebFactory(string? dataProtectionKeysPath)
+    {
+        DataProtectionKeysPath = dataProtectionKeysPath ?? Path.Combine(
+            Path.GetTempPath(),
+            "GazeteDagitim.Tests",
+            $"factory-{Guid.NewGuid():N}",
+            "DataProtection-Keys");
+    }
+
+    internal string DataProtectionKeysPath { get; }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
@@ -52,12 +69,19 @@ public sealed class GazeteWebFactory : WebApplicationFactory<Program>
                 new Dictionary<string, string?>
                 {
                     ["Database:ApplyMigrations"] = "false",
+                    ["DataProtection:KeysPath"] = DataProtectionKeysPath,
                     ["ConnectionStrings:GazeteDagitim"] =
                         "Server=(local);Database=Unused;Trusted_Connection=True;TrustServerCertificate=True"
                 });
         });
         builder.ConfigureServices(services =>
         {
+            Directory.CreateDirectory(DataProtectionKeysPath);
+            services
+                .AddDataProtection()
+                .PersistKeysToFileSystem(
+                    new DirectoryInfo(DataProtectionKeysPath))
+                .SetApplicationName("GazeteDagitim.Web");
             services.RemoveAll<DbContextOptions<AppDbContext>>();
             services.RemoveAll<IDbContextOptionsConfiguration<AppDbContext>>();
             services.RemoveAll<AppDbContext>();

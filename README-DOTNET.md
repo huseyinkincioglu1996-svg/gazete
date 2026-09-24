@@ -103,3 +103,29 @@ Otomatik çalıştırmayı etkinleştirmek için:
 ```
 
 Yerel geliştirmede beklenmedik kayıt oluşmaması için varsayılan değer `false`tur.
+
+## Canlı ortamda form güvenlik anahtarları
+
+ASP.NET Core form güvenlik anahtarları varsayılan olarak uygulamanın
+`App_Data/DataProtection-Keys` klasöründe kalıcı tutulur. Plesk/IIS uygulama
+havuzu kimliğinin bu klasörde okuma ve yazma izni olmalıdır. Yeni sürüm
+yüklenirken bu klasör silinmemeli veya başka sunucunun anahtarlarıyla
+değiştirilmemelidir; aksi durumda açık formların ve mevcut oturum
+çerezlerinin güvenlik doğrulaması geçersiz olur.
+
+Anahtarları yayın klasörü dışında kalıcı bir konumda tutmak için mutlak
+bir Windows veya Linux yolu ortam değişkeniyle verilebilir:
+
+```text
+DataProtection__KeysPath=D:\PleskData\GazeteDagitim\DataProtection-Keys
+```
+
+Bu klasör sunucuya özeldir; içindeki XML anahtarları Git'e veya herkese açık
+bir dizine eklenmemelidir. Windows/Plesk kurulumunda anahtar içeriği
+makine kapsamında DPAPI ile şifrelenir; bu nedenle anahtar dosyaları başka bir
+sunucuya kopyalanarak kullanılamaz. Linux kurulumunda klasör izinleriyle
+erişim mutlaka yalnızca uygulama hesabıyla sınırlanmalıdır.
+
+Production ve Staging ortamlarında antiforgery
+çerezi yalnızca HTTPS üzerinden gönderilir. Bu nedenle canlı alan adında
+geçerli SSL sertifikası ve HTTPS yapılandırması zorunludur.

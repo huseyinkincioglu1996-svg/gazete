@@ -73,6 +73,7 @@ public sealed class DailyDeliveryRowViewModel
 public sealed class DailyDeliveriesInputModel
 {
     [Required]
+    [SupportedDate]
     public DateOnly Date { get; set; }
 
     public List<DailyDeliveryRowInputModel> Rows { get; set; } = [];
@@ -95,6 +96,7 @@ public sealed class DailyDeliveryRowInputModel
 public sealed class DailyDeliveryRowAutosaveInputModel : IValidatableObject
 {
     [Required]
+    [SupportedDate]
     public DateOnly Date { get; set; }
 
     [Range(1, int.MaxValue)]
@@ -133,6 +135,7 @@ public sealed class DailyDeliveryRowAutosaveInputModel : IValidatableObject
 public sealed class DailyNewspaperCashSaleInputModel
 {
     [Required]
+    [SupportedDate]
     public DateOnly Date { get; set; }
 
     [Range(1, int.MaxValue)]
@@ -259,6 +262,7 @@ public sealed class CashHandoverItemViewModel
 public sealed class CashHandoverInputModel
 {
     [Required]
+    [SupportedDate]
     public DateOnly Date { get; set; }
 
     [Required]

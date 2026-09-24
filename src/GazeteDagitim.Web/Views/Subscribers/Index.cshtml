@@ -37,113 +37,120 @@
         </a>
     </nav>
 
-    <div class="management-table-shell">
-        <table class="management-table">
-            <thead>
-                <tr>
-                    <th>Abone</th>
-                    <th>Plan</th>
-                    <th>Gazete günleri</th>
-                    <th>Aylık ücret</th>
-                    <th>Durum</th>
-                    <th class="management-actions-heading">İşlemler</th>
-                </tr>
-            </thead>
-            <tbody>
-            @if (Model.Items.Count == 0)
+    @if (Model.Items.Count == 0)
+    {
+        <div class="subscriber-list-empty">Bu filtreye uygun abone bulunamadı.</div>
+    }
+    else
+    {
+        <section class="subscriber-list" aria-label="Abone listesi">
+            @foreach (var item in Model.Items)
             {
-                <tr>
-                    <td class="management-empty" colspan="6">Bu filtreye uygun abone bulunamadı.</td>
-                </tr>
-            }
-            else
-            {
-                @foreach (var item in Model.Items)
-                {
-                    var paymentDetailsUrl = Url.Action(
-                        "Details",
-                        "SubscriberPayments",
-                        new { subscriberId = item.Id });
-                    <tr class="@(!item.IsActive ? "is-passive" : null)"
-                        tabindex="0"
-                        role="link"
-                        aria-label="@item.Name ödeme detaylarını aç"
-                        data-row-link="@paymentDetailsUrl">
-                        <td data-label="Abone">
-                            <a class="management-subscriber-link"
-                               href="@paymentDetailsUrl">
-                                <strong>@item.Name</strong>
-                                <span>Ödeme detaylarını aç</span>
-                            </a>
-                            @if (!string.IsNullOrWhiteSpace(item.Phone))
-                            {
-                                <small>@item.Phone</small>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(item.Address))
-                            {
-                                <small>@item.Address</small>
-                            }
-                            @if (item.Latitude.HasValue && item.Longitude.HasValue)
-                            {
-                                <a class="management-map-link"
-                                   href="https://www.google.com/maps?q=@item.Latitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),@item.Longitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)"
-                                   target="_blank"
-                                   rel="noopener noreferrer">
-                                    Google Maps'te aç
-                                </a>
-                            }
-                        </td>
-                        <td data-label="Plan">
-                            <span>@(item.PaymentPeriodName ?? "Periyot yok")</span>
-                            <small>@(item.DistributorName ?? "Dağıtıcı atanmamış")</small>
-                        </td>
-                        <td data-label="Gazete günleri">
-                            <div class="management-chip-list">
-                                @if (item.NewspaperDays.Count == 0)
-                                {
-                                    <span class="management-muted">Gün seçilmemiş</span>
-                                }
-                                else
-                                {
-                                    @foreach (var day in item.NewspaperDays)
-                                    {
-                                        <span class="management-chip">@day</span>
-                                    }
-                                }
-                            </div>
-                        </td>
-                        <td data-label="Aylık ücret">
+                var paymentDetailsUrl = Url.Action(
+                    "Details",
+                    "SubscriberPayments",
+                    new { subscriberId = item.Id });
+                <details class="subscriber-row @(!item.IsActive ? "is-passive" : null)"
+                         data-testid="subscriber-row-@item.Id">
+                    <summary class="subscriber-summary"
+                             aria-label="@item.Name ayrıntılarını aç veya kapat">
+                        <span class="subscriber-summary-name">
+                            <strong>@item.Name</strong>
+                            <small>@(item.PaymentPeriodName ?? "Periyot yok")</small>
+                        </span>
+                        <span class="subscriber-summary-meta subscriber-summary-plan">
+                            <small>Dağıtıcı</small>
+                            <strong>@(item.DistributorName ?? "Atanmamış")</strong>
+                        </span>
+                        <span class="subscriber-summary-meta subscriber-summary-fee">
+                            <small>Aylık ücret</small>
                             <strong>@item.MonthlyFee.ToString("N2") ₺</strong>
-                        </td>
-                        <td data-label="Durum">
-                            <span class="management-status @(item.IsActive ? "active" : "passive")">
-                                @(item.IsActive ? "Aktif" : "Pasif")
-                            </span>
-                        </td>
-                        <td data-label="İşlemler">
-                            <div class="management-row-actions">
-                                <a class="management-button management-button-secondary"
-                                   asp-action="Edit"
-                                   asp-route-id="@item.Id">
-                                    Düzenle
-                                </a>
-                                <form asp-action="ToggleStatus" asp-route-id="@item.Id" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="isActive" value="@(!item.IsActive)" />
-                                    <input type="hidden" name="status" value="@Model.Status" />
-                                    <button class="management-button @(item.IsActive ? "management-button-danger" : "management-button-primary")"
-                                            type="submit">
-                                        @(item.IsActive ? "Pasife al" : "Aktifleştir")
-                                    </button>
-                                </form>
+                        </span>
+                        <span class="management-status @(item.IsActive ? "active" : "passive")">
+                            @(item.IsActive ? "Aktif" : "Pasif")
+                        </span>
+                        <span class="subscriber-chevron" aria-hidden="true"></span>
+                    </summary>
+
+                    <div class="subscriber-details">
+                        <dl class="subscriber-definition-grid">
+                            <div>
+                                <dt>İletişim</dt>
+                                <dd>
+                                    <strong>@(string.IsNullOrWhiteSpace(item.Phone) ? "Telefon yok" : item.Phone)</strong>
+                                    <small>@(string.IsNullOrWhiteSpace(item.Address) ? "Adres yok" : item.Address)</small>
+                                </dd>
                             </div>
-                        </td>
-                    </tr>
-                }
+                            <div>
+                                <dt>Ödeme planı</dt>
+                                <dd>
+                                    <strong>@(item.PaymentPeriodName ?? "Periyot yok")</strong>
+                                    <small>@(item.DistributorName ?? "Dağıtıcı atanmamış")</small>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt>Gazete günleri</dt>
+                                <dd>
+                                    <div class="management-chip-list">
+                                        @if (item.NewspaperDays.Count == 0)
+                                        {
+                                            <span class="management-muted">Gün seçilmemiş</span>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var day in item.NewspaperDays)
+                                            {
+                                                <span class="management-chip">@day</span>
+                                            }
+                                        }
+                                    </div>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt>Teslimat konumu</dt>
+                                <dd>
+                                    @if (item.Latitude.HasValue && item.Longitude.HasValue)
+                                    {
+                                        <a class="management-map-link"
+                                           href="https://www.google.com/maps?q=@item.Latitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),@item.Longitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                           target="_blank"
+                                           rel="noopener noreferrer">
+                                            Google Maps'te aç
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="management-muted">Konum belirlenmemiş</span>
+                                    }
+                                </dd>
+                            </div>
+                        </dl>
+
+                        <div class="management-row-actions subscriber-actions">
+                            <a class="management-button management-button-secondary"
+                               href="@paymentDetailsUrl">
+                                Ödeme detayları
+                            </a>
+                            <a class="management-button management-button-secondary"
+                               asp-action="Edit"
+                               asp-route-id="@item.Id">
+                                Düzenle
+                            </a>
+                            <form asp-action="ToggleStatus" asp-route-id="@item.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="isActive" value="@(!item.IsActive)" />
+                                <input type="hidden" name="status" value="@Model.Status" />
+                                <button class="management-button @(item.IsActive ? "management-button-danger" : "management-button-primary")"
+                                        type="submit">
+                                    @(item.IsActive ? "Pasife al" : "Aktifleştir")
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </details>
             }
-            </tbody>
-        </table>
-    </div>
+        </section>
+    }
 </main>
 
 @section Scripts {

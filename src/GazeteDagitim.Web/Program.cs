@@ -2,6 +2,7 @@ using System.Globalization;
 using GazeteDagitim.Web.Data;
 using GazeteDagitim.Web.Infrastructure;
 using GazeteDagitim.Web.Services;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,51 @@ var connectionString = builder.Configuration.GetConnectionString("GazeteDagitim"
     ?? throw new InvalidOperationException(
         "ConnectionStrings:GazeteDagitim MSSQL bağlantısı tanımlanmalıdır.");
 
-builder.Services.AddControllersWithViews();
+var configuredDataProtectionKeysPath =
+    builder.Configuration["DataProtection:KeysPath"];
+var defaultDataProtectionKeysPath = builder.Environment.IsEnvironment("Testing")
+    ? Path.Combine(
+        Path.GetTempPath(),
+        "GazeteDagitim.Tests",
+        Environment.ProcessId.ToString(),
+        "DataProtection-Keys")
+    : Path.Combine(
+        builder.Environment.ContentRootPath,
+        "App_Data",
+        "DataProtection-Keys");
+var dataProtectionKeysPath = string.IsNullOrWhiteSpace(configuredDataProtectionKeysPath)
+    ? defaultDataProtectionKeysPath
+    : Path.IsPathRooted(configuredDataProtectionKeysPath)
+        ? configuredDataProtectionKeysPath
+        : Path.Combine(
+            builder.Environment.ContentRootPath,
+            configuredDataProtectionKeysPath);
+dataProtectionKeysPath = Path.GetFullPath(dataProtectionKeysPath);
+Directory.CreateDirectory(dataProtectionKeysPath);
+
+var dataProtectionBuilder = builder.Services
+    .AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath))
+    .SetApplicationName("GazeteDagitim.Web");
+if (OperatingSystem.IsWindows())
+{
+    // Machine scope keeps the key ring readable after an IIS/Plesk app-pool
+    // identity change. Access is still restricted by the key directory ACL.
+    dataProtectionBuilder.ProtectKeysWithDpapi(protectToLocalMachine: true);
+}
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.Name = ".GazeteDagitim.Antiforgery";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy =
+        builder.Environment.IsDevelopment()
+        || builder.Environment.IsEnvironment("Testing")
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+});
+builder.Services.AddControllersWithViews(options =>
+    options.Filters.Add(new AntiforgeryFailureResultFilter()));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         connectionString,

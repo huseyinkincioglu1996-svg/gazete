@@ -17,3 +17,6 @@ backend/.local-mongodb/
 .vs/
 **/bin/
 **/obj/
+
+# ASP.NET Core Data Protection anahtarları sunucuya özeldir; repoya girmez.
+src/GazeteDagitim.Web/App_Data/DataProtection-Keys/

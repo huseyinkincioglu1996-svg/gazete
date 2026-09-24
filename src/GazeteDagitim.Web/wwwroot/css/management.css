@@ -367,8 +367,176 @@
   text-align: center;
 }
 
+.subscriber-list {
+  display: grid;
+  gap: 10px;
+}
+
+.subscriber-row {
+  overflow: hidden;
+  border: 1px solid var(--management-border);
+  border-radius: 12px;
+  background: var(--management-surface);
+  color: var(--management-text);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 20%);
+}
+
+.subscriber-row.is-passive {
+  background: #0c0c0e;
+  opacity: 0.82;
+}
+
+.subscriber-row[open] {
+  border-color: #57575f;
+}
+
+.subscriber-summary {
+  display: grid;
+  min-height: 72px;
+  grid-template-columns:
+    minmax(180px, 1.4fr)
+    minmax(150px, 1fr)
+    minmax(120px, 0.65fr)
+    auto
+    24px;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.subscriber-summary::-webkit-details-marker {
+  display: none;
+}
+
+.subscriber-summary::marker {
+  content: "";
+}
+
+.subscriber-summary:hover {
+  background: rgb(169 0 59 / 8%);
+}
+
+.subscriber-summary:focus-visible {
+  outline: 3px solid var(--management-focus);
+  outline-offset: -3px;
+}
+
+.subscriber-summary-name,
+.subscriber-summary-meta {
+  min-width: 0;
+}
+
+.subscriber-summary-name > strong,
+.subscriber-summary-name > small,
+.subscriber-summary-meta > strong,
+.subscriber-summary-meta > small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.subscriber-summary-name > strong {
+  font-size: 0.92rem;
+}
+
+.subscriber-summary-name > small,
+.subscriber-summary-meta > small {
+  color: var(--management-muted);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.subscriber-summary-name > small {
+  margin-top: 4px;
+  text-transform: none;
+}
+
+.subscriber-summary-meta > strong {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.subscriber-chevron {
+  width: 11px;
+  height: 11px;
+  border-right: 2px solid #d4d4d8;
+  border-bottom: 2px solid #d4d4d8;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.18s ease;
+}
+
+.subscriber-row[open] .subscriber-chevron {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+
+.subscriber-details {
+  border-top: 1px solid var(--management-border);
+  padding: 16px;
+  background: #0d0d0f;
+}
+
+.subscriber-definition-grid {
+  display: grid;
+  overflow: hidden;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  border: 1px solid var(--management-border);
+  border-radius: 10px;
+  background: var(--management-border);
+}
+
+.subscriber-definition-grid > div {
+  min-width: 0;
+  padding: 13px;
+  background: var(--management-surface);
+}
+
+.subscriber-definition-grid dt {
+  color: var(--management-muted);
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.subscriber-definition-grid dd {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.subscriber-definition-grid dd > strong,
+.subscriber-definition-grid dd > small {
+  display: block;
+}
+
+.subscriber-definition-grid dd > small {
+  margin-top: 4px;
+  color: var(--management-muted);
+}
+
+.subscriber-actions {
+  margin-top: 14px;
+}
+
+.subscriber-list-empty {
+  border: 1px solid var(--management-border);
+  border-radius: 12px;
+  padding: 34px;
+  background: var(--management-surface);
+  color: var(--management-muted);
+  text-align: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .payment-period-chevron {
+  .payment-period-chevron,
+  .subscriber-chevron {
     transition: none;
   }
 }
@@ -1169,6 +1337,47 @@
     padding: 13px;
   }
 
+  .subscriber-summary {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) auto 22px;
+    gap: 9px 11px;
+    padding: 13px;
+  }
+
+  .subscriber-summary-name {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .subscriber-summary-plan {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .subscriber-summary-fee {
+    grid-column: 2 / 4;
+    grid-row: 2;
+    text-align: right;
+  }
+
+  .subscriber-summary > .management-status {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .subscriber-chevron {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .subscriber-definition-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .subscriber-details {
+    padding: 13px;
+  }
+
   .management-table-shell {
     overflow: visible;
     border: 0;
@@ -1279,13 +1488,17 @@
 }
 
 @media (max-width: 480px) {
-  .payment-period-definition-grid {
+  .payment-period-definition-grid,
+  .subscriber-definition-grid {
     grid-template-columns: 1fr;
   }
 
   .payment-period-actions,
+  .subscriber-actions,
   .payment-period-actions form,
-  .payment-period-actions .management-button {
+  .subscriber-actions form,
+  .payment-period-actions .management-button,
+  .subscriber-actions .management-button {
     width: 100%;
   }
 

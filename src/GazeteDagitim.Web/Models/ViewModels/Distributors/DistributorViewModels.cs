@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using GazeteDagitim.Web.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -52,6 +54,7 @@ public sealed class DistributorFormViewModel : IValidatableObject
     public string PaymentType { get; set; } = "Daily";
 
     [Range(typeof(decimal), "0", "999999999", ErrorMessage = "Dağıtıcı birim maliyeti sıfır veya daha büyük olmalıdır.")]
+    [ModelBinder(BinderType = typeof(InvariantDecimalModelBinder))]
     [Display(Name = "Dağıtıcı birim maliyeti")]
     public decimal NewspaperPrice { get; set; } = 5;
 

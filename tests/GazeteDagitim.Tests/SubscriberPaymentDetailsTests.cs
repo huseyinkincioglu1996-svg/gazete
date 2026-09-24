@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using GazeteDagitim.Web.Data;
 using GazeteDagitim.Web.Models.Entities;
 using GazeteDagitim.Web.Models.Enums;
@@ -301,7 +302,28 @@ public sealed class SubscriberPaymentDetailsEndpointTests
             $"/subscribers/{subscriberId}/payments",
             listHtml,
             StringComparison.Ordinal);
-        Assert.Contains("data-row-link=", listHtml, StringComparison.Ordinal);
+        var subscriberRow = Regex.Match(
+            listHtml,
+            "<details\\b[^>]*class=\"[^\"]*subscriber-row[^\"]*\"[^>]*>",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        Assert.True(subscriberRow.Success);
+        Assert.DoesNotContain(
+            " open",
+            subscriberRow.Value,
+            StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(
+            "subscriber-summary",
+            listHtml,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            $"/subscribers/{subscriberId}/edit",
+            listHtml,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            $"/subscribers/{subscriberId}/toggle-status",
+            listHtml,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("data-row-link=", listHtml, StringComparison.Ordinal);
 
         var token = ExtractInputValue(
             detailsHtml,

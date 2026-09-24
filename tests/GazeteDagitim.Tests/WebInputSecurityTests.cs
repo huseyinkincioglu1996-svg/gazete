@@ -15,6 +15,86 @@ public sealed class WebInputSecurityTests
     private static readonly DateOnly TestDate = new(2026, 7, 28);
 
     [Fact]
+    public async Task DistributorPrice_WithHtmlDecimalPoint_PersistsFractionalValue()
+    {
+        await using var factory = new GazeteWebFactory();
+        using var client = CreateClient(factory);
+        var token = await GetAntiforgeryTokenAsync(client, "/distributors/create");
+
+        using var response = await client.PostAsync(
+            "/distributors/create",
+            Form(
+                token,
+                ("Name", "Ondalıklı Dağıtıcı"),
+                ("Phone", "555 000 00 00"),
+                ("Address", "Test adresi"),
+                ("Zone", "Region1"),
+                ("PaymentType", "Daily"),
+                ("NewspaperPrice", "5.25")));
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var distributor = await dbContext.Distributors.AsNoTracking().SingleAsync();
+        Assert.Equal(5.25m, distributor.NewspaperPrice);
+    }
+
+    [Fact]
+    public async Task SubscriberDecimalsAndIsoDate_WithHtmlValues_PersistExactly()
+    {
+        await using var factory = new GazeteWebFactory();
+        using var client = CreateClient(factory);
+        var token = await GetAntiforgeryTokenAsync(client, "/subscribers/create");
+
+        using var response = await client.PostAsync(
+            "/subscribers/create",
+            Form(
+                token,
+                ("Name", "Ondalıklı Abone"),
+                ("MonthlyFee", "125.50"),
+                ("FirstDeliveryDate", TestDate.ToString("yyyy-MM-dd")),
+                ("Latitude", "41.0082"),
+                ("Longitude", "28.9784"),
+                ("IsActive", "true")));
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var subscriber = await dbContext.Subscribers.AsNoTracking().SingleAsync();
+        Assert.Equal(125.50m, subscriber.MonthlyFee);
+        Assert.Equal(TestDate, subscriber.FirstDeliveryDate);
+        Assert.Equal(41.0082m, subscriber.Latitude);
+        Assert.Equal(28.9784m, subscriber.Longitude);
+    }
+
+    [Fact]
+    public async Task SubscriberDecimals_WithTurkishComma_PersistFractionalValues()
+    {
+        await using var factory = new GazeteWebFactory();
+        using var client = CreateClient(factory);
+        var token = await GetAntiforgeryTokenAsync(client, "/subscribers/create");
+
+        using var response = await client.PostAsync(
+            "/subscribers/create",
+            Form(
+                token,
+                ("Name", "Virgüllü Abone"),
+                ("MonthlyFee", "99,75"),
+                ("FirstDeliveryDate", TestDate.ToString("yyyy-MM-dd")),
+                ("Latitude", "40,123456"),
+                ("Longitude", "29,123456"),
+                ("IsActive", "true")));
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var subscriber = await dbContext.Subscribers.AsNoTracking().SingleAsync();
+        Assert.Equal(99.75m, subscriber.MonthlyFee);
+        Assert.Equal(40.123456m, subscriber.Latitude);
+        Assert.Equal(29.123456m, subscriber.Longitude);
+    }
+
+    [Fact]
     public async Task DeliveryAmount_WithHtmlDecimalPoint_PersistsFractionalValue()
     {
         await using var factory = new GazeteWebFactory();

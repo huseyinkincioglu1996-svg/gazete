@@ -5,7 +5,8 @@ namespace GazeteDagitim.Web.Models.ViewModels;
 
 /// <summary>
 /// Parses decimal values emitted by HTML number inputs without treating their
-/// invariant decimal point as a Turkish thousands separator.
+/// invariant decimal point as a Turkish thousands separator. Both the HTML
+/// invariant separator and a manually entered Turkish separator are accepted.
 /// </summary>
 public sealed class InvariantDecimalModelBinder : IModelBinder
 {
@@ -35,7 +36,7 @@ public sealed class InvariantDecimalModelBinder : IModelBinder
 
             bindingContext.ModelState.TryAddModelError(
                 bindingContext.ModelName,
-                "Tutar alanı zorunludur.");
+                "Sayı alanı zorunludur.");
             return Task.CompletedTask;
         }
 
@@ -52,7 +53,7 @@ public sealed class InvariantDecimalModelBinder : IModelBinder
 
         bindingContext.ModelState.TryAddModelError(
             bindingContext.ModelName,
-            "Geçerli bir tutar girin.");
+            "Geçerli bir sayı girin.");
         return Task.CompletedTask;
     }
 

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "packageName": "com.turnaexpress.gazete",
+  "versionCode": 2,
+  "versionName": "1.1.0",
+  "apkUrl": "https://gazete.turnaexpress.com.tr/downloads/android/gazete-1.1.0-2.apk",
+  "sha256": "6eae4801e3cc2dcac4a58416867e20d8c3ca752dd572f3669c426bd627cdf986",
+  "size": 46373192
+}

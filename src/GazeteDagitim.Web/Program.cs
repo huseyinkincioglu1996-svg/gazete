@@ -101,10 +101,40 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 app.UseHttpsRedirection();
 app.Use(async (context, next) =>
 {
-    if (context.Request.Path.Equals("/service-worker.js", StringComparison.OrdinalIgnoreCase))
+    var requestPath = context.Request.Path.Value ?? string.Empty;
+    if (requestPath.Equals("/service-worker.js", StringComparison.OrdinalIgnoreCase))
     {
         context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
         context.Response.Headers["Service-Worker-Allowed"] = "/";
+    }
+    else if (requestPath.Equals(
+                 "/downloads/android/update.json",
+                 StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.OnStarting(() =>
+        {
+            context.Response.Headers.CacheControl =
+                "no-cache, no-store, must-revalidate";
+            context.Response.Headers.Pragma = "no-cache";
+            context.Response.Headers.Expires = "0";
+            context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+            return Task.CompletedTask;
+        });
+    }
+    else if (requestPath.StartsWith(
+                 "/downloads/android/",
+                 StringComparison.OrdinalIgnoreCase)
+             && requestPath.EndsWith(".apk", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.OnStarting(() =>
+        {
+            context.Response.ContentType =
+                "application/vnd.android.package-archive";
+            context.Response.Headers.CacheControl =
+                "public, max-age=31536000, immutable";
+            context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+            return Task.CompletedTask;
+        });
     }
 
     await next();

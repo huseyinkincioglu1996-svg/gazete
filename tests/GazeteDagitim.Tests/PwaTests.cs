@@ -101,6 +101,33 @@ public sealed class PwaTests : IClassFixture<GazeteWebFactory>
     }
 
     [Fact]
+    public async Task AndroidUpdateManifest_IsFreshAndHasTrustedReleaseMetadata()
+    {
+        var response = await _client.GetAsync("/downloads/android/update.json");
+
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
+        Assert.True(response.Headers.CacheControl?.NoCache);
+        Assert.True(response.Headers.CacheControl?.NoStore);
+        Assert.Equal("nosniff", response.Headers.GetValues("X-Content-Type-Options").Single());
+
+        await using var stream = await response.Content.ReadAsStreamAsync();
+        using var manifest = await JsonDocument.ParseAsync(stream);
+        var root = manifest.RootElement;
+
+        Assert.Equal(1, root.GetProperty("schemaVersion").GetInt32());
+        Assert.Equal("com.turnaexpress.gazete", root.GetProperty("packageName").GetString());
+        Assert.True(root.GetProperty("versionCode").GetInt32() > 0);
+        Assert.Matches(@"^[a-f0-9]{64}$", root.GetProperty("sha256").GetString()!);
+        Assert.InRange(root.GetProperty("size").GetInt64(), 1, 200L * 1024 * 1024);
+
+        var apkUrl = new Uri(root.GetProperty("apkUrl").GetString()!);
+        Assert.Equal(Uri.UriSchemeHttps, apkUrl.Scheme);
+        Assert.Equal("gazete.turnaexpress.com.tr", apkUrl.Host);
+        Assert.EndsWith(".apk", apkUrl.AbsolutePath, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task ClientGuard_DisablesMutatingActionsWhileOffline()
     {
         var script = await _client.GetStringAsync("/js/site.js");

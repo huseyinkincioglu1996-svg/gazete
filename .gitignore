@@ -20,3 +20,6 @@ backend/.local-mongodb/
 
 # ASP.NET Core Data Protection anahtarları sunucuya özeldir; repoya girmez.
 src/GazeteDagitim.Web/App_Data/DataProtection-Keys/
+
+# İmzalı Android paketi release sırasında üretilir ve canlı sunucuya yüklenir.
+src/GazeteDagitim.Web/wwwroot/downloads/android/*.apk

@@ -1,0 +1,47 @@
+name: Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "mobile/gazete/**"
+      - ".github/workflows/android-apk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile/gazete
+
+    steps:
+      - name: Kaynak kodu al
+        uses: actions/checkout@v4
+
+      - name: Java 21 kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Flutter kur
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Bağımlılıkları yükle
+        run: flutter pub get
+
+      - name: Sürüm APK'sını üret
+        run: flutter build apk --release
+
+      - name: APK'yı sakla
+        uses: actions/upload-artifact@v4
+        with:
+          name: gazete-release-apk
+          path: mobile/gazete/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
